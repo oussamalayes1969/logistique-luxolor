@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organisation Logistique - Luxolor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div>
+    <h1>Organisation du Département Logistique</h1>
+    <div class="sub">Luxolor — Dépôt Central &amp; Vente en ligne</div>
+  </div>
+  <button id="editToggle" class="edit-toggle">Mode édition</button>
+</header>
+
+<nav class="tabs">
+  <button data-tab="organigramme" class="active">Organigramme</button>
+  <button data-tab="postes">Fiches de poste</button>
+  <button data-tab="fonctions">Fiches de fonction</button>
+</nav>
+
+<main>
+
+  <!-- ORGANIGRAMME -->
+  <section id="organigramme" class="tab-panel active">
+    <div class="toolbar">
+      <span style="color:var(--muted);font-size:.85rem;">Cliquez sur une personne pour voir sa fiche détaillée.</span>
+      <div>
+        <button id="addEmployeBtn" class="btn" style="display:none;">+ Ajouter un employé</button>
+        <button id="exportBtn" class="btn secondary">Exporter data.js</button>
+        <button id="resetBtn" class="btn secondary">Réinitialiser</button>
+      </div>
+    </div>
+    <div id="orgTreeContainer"></div>
+  </section>
+
+  <!-- FICHES DE POSTE -->
+  <section id="postes" class="tab-panel">
+    <div class="toolbar">
+      <input id="posteSearch" class="search-input" placeholder="Rechercher un poste...">
+      <button id="addPosteBtn" class="btn" style="display:none;">+ Nouvelle fiche de poste</button>
+    </div>
+    <div id="postesGrid" class="grid"></div>
+  </section>
+
+  <!-- FICHES DE FONCTION -->
+  <section id="fonctions" class="tab-panel">
+    <div class="toolbar">
+      <input id="fonctionSearch" class="search-input" placeholder="Rechercher une fonction...">
+      <button id="addFonctionBtn" class="btn" style="display:none;">+ Nouvelle fiche de fonction</button>
+    </div>
+    <div id="fonctionsGrid" class="grid"></div>
+  </section>
+
+</main>
+
+<!-- ===== MODALS ===== -->
+
+<div class="modal-overlay" id="employeDetailModal">
+  <div class="modal">
+    <button class="close-btn">✕</button>
+    <div id="employeDetailBody"></div>
+    <div class="modal-actions" id="employeDetailActions"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="employeFormModal">
+  <div class="modal">
+    <button class="close-btn">✕</button>
+    <div id="employeFormBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="posteDetailModal">
+  <div class="modal">
+    <button class="close-btn">✕</button>
+    <div id="posteDetailBody"></div>
+    <div class="modal-actions" id="posteDetailActions"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="posteFormModal">
+  <div class="modal">
+    <button class="close-btn">✕</button>
+    <div id="posteFormBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="fonctionDetailModal">
+  <div class="modal">
+    <button class="close-btn">✕</button>
+    <div id="fonctionDetailBody"></div>
+    <div class="modal-actions" id="fonctionDetailActions"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="fonctionFormModal">
+  <div class="modal">
+    <button class="close-btn">✕</button>
+    <div id="fonctionFormBody"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
