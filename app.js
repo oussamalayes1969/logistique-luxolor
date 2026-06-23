@@ -88,28 +88,49 @@ function resetData(){
 // =========================================================
 // ORGANIGRAMME
 // =========================================================
+function getInitials(emp){
+  const realNom = (emp.nom && !emp.nom.toLowerCase().includes("compléter") && !emp.nom.toLowerCase().includes("nommer")) ? emp.nom : "";
+  const a = (emp.prenom||"?").trim()[0] || "?";
+  const b = (realNom || emp.prenom.trim().split(" ")[1] || "?")[0];
+  return (a+b).toUpperCase();
+}
+
+function employeCard(emp, big){
+  const poste = getPoste(emp.posteId) || {intitule: emp.posteId};
+  return `<div class="org-card${big?" org-card-lead":""}" onclick="openEmployeDetail('${emp.id}')">
+      <div class="avatar">${getInitials(emp)}</div>
+      <div class="name">${emp.prenom} ${emp.nom}</div>
+      <div class="role">${poste.intitule}</div>
+    </div>`;
+}
+
 function renderOrgChart(){
   const container = document.getElementById("orgTreeContainer");
   const roots = DATA.employes.filter(e=>!e.managerId);
   if(roots.length===0){ container.innerHTML = "<p>Aucun employé.</p>"; return; }
 
-  function buildNode(emp){
-    const poste = getPoste(emp.posteId) || {intitule: emp.posteId};
-    const initials = ((emp.prenom||"?")[0]+(emp.nom||"?")[0]).toUpperCase();
-    const children = DATA.employes.filter(e=>e.managerId===emp.id);
-    let html = `<li><div class="org-card" onclick="openEmployeDetail('${emp.id}')">
-        <div class="avatar">${initials}</div>
-        <div class="name">${emp.prenom} ${emp.nom}</div>
-        <div class="role">${poste.intitule}</div>
-      </div>`;
-    if(children.length>0){
-      html += "<ul>" + children.map(buildNode).join("") + "</ul>";
+  let html = `<div class="org-root">`;
+  roots.forEach(root=>{
+    html += employeCard(root, true);
+    const depts = DATA.employes.filter(e=>e.managerId===root.id);
+    if(depts.length>0){
+      html += `<div class="dept-connector"></div><div class="org-departments">`;
+      depts.forEach(dept=>{
+        const members = DATA.employes.filter(e=>e.managerId===dept.id);
+        html += `<div class="dept-panel"><div class="dept-panel-header">${employeCard(dept,false)}</div>`;
+        if(members.length>0){
+          html += `<div class="dept-connector small"></div><div class="dept-members-grid">`;
+          html += members.map(m=>employeCard(m,false)).join("");
+          html += `</div>`;
+        }
+        html += `</div>`;
+      });
+      html += `</div>`;
     }
-    html += "</li>";
-    return html;
-  }
+  });
+  html += `</div>`;
 
-  container.innerHTML = `<div class="org-tree"><ul>${roots.map(buildNode).join("")}</ul></div>`;
+  container.innerHTML = html;
 }
 
 function openEmployeDetail(empId){
