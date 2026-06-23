@@ -105,10 +105,22 @@ function employeCard(emp, level){
     </div>`;
 }
 
+function buildVerticalStack(children, level){
+  let html = `<div class="connector-vert"></div><div class="vertical-stack">`;
+  children.forEach((c,i)=>{
+    if(i>0) html += `<div class="connector-vert small"></div>`;
+    html += employeCard(c, level);
+  });
+  html += `</div>`;
+  return html;
+}
+
 function buildOrgNode(emp, level){
   const children = DATA.employes.filter(e=>e.managerId===emp.id);
   let html = `<li>${employeCard(emp, level)}`;
-  if(children.length>0){
+  if(children.length>0 && emp.childrenLayout === "vertical"){
+    html += buildVerticalStack(children, level+1);
+  } else if(children.length>0){
     html += `<ul>${children.map(c=>buildOrgNode(c, level+1)).join("")}</ul>`;
   }
   html += `</li>`;

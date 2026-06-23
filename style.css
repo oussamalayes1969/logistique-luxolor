@@ -144,6 +144,15 @@ main{padding:24px;max-width:1200px;margin:0 auto;}
 .org-card .name{font-weight:600;font-size:.82rem;line-height:1.25;}
 .org-card .role{font-size:.72rem;margin-top:2px;opacity:.9;}
 
+/* branche affichée verticalement (un poste en dessous de l'autre) */
+.connector-vert{width:2px;height:22px;background:#c4cdd9;margin:0 auto;}
+.connector-vert.small{height:14px;}
+.vertical-stack{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
 /* ===== Cards grids (postes / fonctions) ===== */
 .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
 .search-input{
