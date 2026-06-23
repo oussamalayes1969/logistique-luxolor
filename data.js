@@ -168,13 +168,13 @@ const APP_DATA = {
     { id: "emp_vente_agent_6", nom: "À compléter", prenom: "Agent dépôt 6", photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
 
     // ===== Branche 3 : Responsable Administratif (subordonnés en horizontal) =====
-    { id: "emp_resp_admin", nom: "À nommer", prenom: "Responsable Administratif", photoUrl: "", posteId: "poste_resp_administratif", managerId: "emp_directeur", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_resp_admin", nom: "À nommer", prenom: "Responsable Administratif", photoUrl: "", posteId: "poste_resp_administratif", managerId: "emp_directeur", email: "", telephone: "", dateEntree: "", childrenLayout: "vertical" },
     { id: "emp_admin_1", nom: "À compléter", prenom: "Administratif 1", photoUrl: "", posteId: "poste_administratif", managerId: "emp_resp_admin", email: "", telephone: "", dateEntree: "" },
     { id: "emp_admin_2", nom: "À compléter", prenom: "Administratif 2", photoUrl: "", posteId: "poste_administratif", managerId: "emp_resp_admin", email: "", telephone: "", dateEntree: "" },
     { id: "emp_admin_3", nom: "À compléter", prenom: "Administratif 3", photoUrl: "", posteId: "poste_administratif", managerId: "emp_resp_admin", email: "", telephone: "", dateEntree: "" },
 
     // ===== Branche 4 : Gestionnaire de stock (subordonnés en horizontal) =====
-    { id: "emp_houcem", nom: "Charfi", prenom: "Houcem", photoUrl: "", posteId: "poste_gestionnaire_stock", managerId: "emp_directeur", email: "d.logistique@luxolor.com", telephone: "98137257", dateEntree: "2021-01-01" },
+    { id: "emp_houcem", nom: "Charfi", prenom: "Houcem", photoUrl: "", posteId: "poste_gestionnaire_stock", managerId: "emp_directeur", email: "d.logistique@luxolor.com", telephone: "98137257", dateEntree: "2021-01-01", childrenLayout: "vertical" },
     { id: "emp_stock_agent_1", nom: "À compléter", prenom: "Agent stock 1", photoUrl: "", posteId: "poste_agent_gestion_stock", managerId: "emp_houcem", email: "", telephone: "", dateEntree: "" },
     { id: "emp_stock_agent_2", nom: "À compléter", prenom: "Agent stock 2", photoUrl: "", posteId: "poste_agent_gestion_stock", managerId: "emp_houcem", email: "", telephone: "", dateEntree: "" }
   ],

@@ -85,7 +85,7 @@ main{padding:24px;max-width:1200px;margin:0 auto;}
   display:table-cell;
   text-align:center;
   vertical-align:top;
-  padding:34px 14px 0 14px;
+  padding:34px 8px 0 8px;
 }
 
 /* ligne verticale descendant du parent vers le groupe d'enfants */
@@ -117,9 +117,9 @@ main{padding:24px;max-width:1200px;margin:0 auto;}
 .org-card{
   display:inline-block;
   border-radius:8px;
-  padding:10px 14px;
-  min-width:150px;
-  max-width:190px;
+  padding:8px 10px;
+  min-width:118px;
+  max-width:150px;
   box-shadow:var(--shadow);
   cursor:pointer;
   border:1px solid rgba(0,0,0,.06);
@@ -129,24 +129,24 @@ main{padding:24px;max-width:1200px;margin:0 auto;}
 }
 .org-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(15,23,42,.18);}
 
-.org-card.level-0{background:#7c3aed;color:#fff;min-width:190px;}
+.org-card.level-0{background:#7c3aed;color:#fff;min-width:160px;}
 .org-card.level-1{background:#16a34a;color:#fff;}
 .org-card.level-2{background:#fde047;color:#1e293b;}
 .org-card.level-3{background:#bae6fd;color:#1e293b;}
 
 .org-card .avatar{
-  width:34px;height:34px;border-radius:50%;
+  width:28px;height:28px;border-radius:50%;
   background:rgba(255,255,255,.35);
   display:flex;align-items:center;justify-content:center;
-  font-weight:700;margin:0 auto 6px auto;font-size:.82rem;
+  font-weight:700;margin:0 auto 4px auto;font-size:.74rem;
 }
 .org-card.level-2 .avatar, .org-card.level-3 .avatar{background:rgba(0,0,0,.12);}
-.org-card .name{font-weight:600;font-size:.82rem;line-height:1.25;}
-.org-card .role{font-size:.72rem;margin-top:2px;opacity:.9;}
+.org-card .name{font-weight:600;font-size:.74rem;line-height:1.2;}
+.org-card .role{font-size:.64rem;margin-top:2px;opacity:.9;}
 
 /* branche affichée verticalement (un poste en dessous de l'autre) */
-.connector-vert{width:2px;height:22px;background:#c4cdd9;margin:0 auto;}
-.connector-vert.small{height:14px;}
+.connector-vert{width:2px;height:14px;background:#c4cdd9;margin:0 auto;}
+.connector-vert.small{height:8px;}
 .vertical-stack{
   display:flex;
   flex-direction:column;
