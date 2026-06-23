@@ -69,76 +69,80 @@ main{padding:24px;max-width:1200px;margin:0 auto;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 
-/* ===== Organigramme (vue en panneaux par département) ===== */
-.org-root{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:24px 16px;
-}
-.dept-connector{
-  width:2px;
-  height:24px;
-  background:#c4cdd9;
-}
-.dept-connector.small{height:18px;}
+/* ===== Organigramme (lignes connectées, style classique) ===== */
+.org-tree-wrap{overflow-x:auto;padding:30px 10px;}
 
-.org-departments{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:28px;
-  width:100%;
-  position:relative;
+.org-tree, .org-tree ul{
+  display:table;
+  margin:0 auto;
+  list-style:none;
+  padding:0;
+}
+.org-tree ul{padding-top:34px;}
+.org-tree, .org-tree ul, .org-tree li{position:relative;}
+
+.org-tree li{
+  display:table-cell;
+  text-align:center;
+  vertical-align:top;
+  padding:34px 14px 0 14px;
 }
 
-.dept-panel{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:18px;
-  min-width:260px;
-  max-width:340px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  box-shadow:var(--shadow);
+/* ligne verticale descendant du parent vers le groupe d'enfants */
+.org-tree ul::before{
+  content:"";
+  position:absolute;
+  top:0; left:50%;
+  border-left:2px solid #c4cdd9;
+  width:0; height:34px;
 }
-.dept-panel-header{margin-bottom:4px;}
 
-.dept-members-grid{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:10px;
+/* ligne horizontale au-dessus de chaque enfant + montée vers la ligne verticale */
+.org-tree li::before{
+  content:"";
+  position:absolute;
+  top:0; left:0;
+  border-top:2px solid #c4cdd9;
+  width:100%; height:34px;
 }
+.org-tree li:first-child::before{left:50%;width:50%;}
+.org-tree li:last-child::before{width:50%;}
+.org-tree li:only-child{padding-top:0;}
+.org-tree li:only-child::before{display:none;}
+
+/* la racine n'a pas de ligne entrante */
+.org-tree > li{padding-top:0;}
+.org-tree > li::before{display:none;}
 
 .org-card{
   display:inline-block;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
+  border-radius:8px;
   padding:10px 14px;
+  min-width:150px;
+  max-width:190px;
   box-shadow:var(--shadow);
-  min-width:140px;
-  max-width:170px;
   cursor:pointer;
+  border:1px solid rgba(0,0,0,.06);
   transition:transform .15s, box-shadow .15s;
+  background:#facc15;
+  color:#1e293b;
 }
-.org-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(15,23,42,.12);}
-.org-card.org-card-lead{
-  min-width:200px;
-  border:2px solid var(--primary);
-}
+.org-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(15,23,42,.18);}
+
+.org-card.level-0{background:#7c3aed;color:#fff;min-width:190px;}
+.org-card.level-1{background:#16a34a;color:#fff;}
+.org-card.level-2{background:#fde047;color:#1e293b;}
+.org-card.level-3{background:#bae6fd;color:#1e293b;}
+
 .org-card .avatar{
-  width:38px;height:38px;border-radius:50%;
-  background:var(--primary-light);color:#fff;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.35);
   display:flex;align-items:center;justify-content:center;
-  font-weight:700;margin:0 auto 6px auto;font-size:.88rem;
+  font-weight:700;margin:0 auto 6px auto;font-size:.82rem;
 }
-.org-card.org-card-lead .avatar{background:var(--primary);width:46px;height:46px;font-size:1rem;}
-.org-card .name{font-weight:600;font-size:.85rem;line-height:1.25;}
-.org-card .role{font-size:.74rem;color:var(--muted);margin-top:2px;}
+.org-card.level-2 .avatar, .org-card.level-3 .avatar{background:rgba(0,0,0,.12);}
+.org-card .name{font-weight:600;font-size:.82rem;line-height:1.25;}
+.org-card .role{font-size:.72rem;margin-top:2px;opacity:.9;}
 
 /* ===== Cards grids (postes / fonctions) ===== */
 .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
