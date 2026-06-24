@@ -98,7 +98,8 @@ function getInitials(emp){
 function employeCard(emp, level){
   const poste = getPoste(emp.posteId) || {intitule: emp.posteId};
   const lvl = Math.min(level, 3);
-  return `<div class="org-card level-${lvl}" onclick="openEmployeDetail('${emp.id}')">
+  const dragAttr = editMode ? `draggable="true" data-empid="${emp.id}"` : "";
+  return `<div class="org-card level-${lvl}" ${dragAttr} data-empid="${emp.id}" onclick="openEmployeDetail('${emp.id}')">
       <div class="avatar">${getInitials(emp)}</div>
       <div class="name">${emp.prenom} ${emp.nom}</div>
       <div class="role">${poste.intitule}</div>
@@ -133,6 +134,71 @@ function renderOrgChart(){
   if(roots.length===0){ container.innerHTML = "<p>Aucun employé.</p>"; return; }
 
   container.innerHTML = `<ul class="org-tree">${roots.map(r=>buildOrgNode(r,0)).join("")}</ul>`;
+  if(editMode) setupDragDrop();
+}
+
+// =========================================================
+// GLISSER-DÉPOSER (drag & drop) — actif en mode édition
+// =========================================================
+let draggedId = null;
+
+function setupDragDrop(){
+  const cards = document.querySelectorAll(".org-card[draggable='true']");
+
+  cards.forEach(card => {
+    card.addEventListener("dragstart", e => {
+      draggedId = card.dataset.empid;
+      card.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    card.addEventListener("dragend", () => {
+      document.querySelectorAll(".org-card").forEach(c => {
+        c.classList.remove("dragging", "drop-target");
+      });
+      draggedId = null;
+    });
+
+    card.addEventListener("dragover", e => {
+      e.preventDefault();
+      if(card.dataset.empid !== draggedId){
+        card.classList.add("drop-target");
+        e.dataTransfer.dropEffect = "move";
+      }
+    });
+
+    card.addEventListener("dragleave", () => {
+      card.classList.remove("drop-target");
+    });
+
+    card.addEventListener("drop", e => {
+      e.preventDefault();
+      card.classList.remove("drop-target");
+      const targetId = card.dataset.empid;
+      if(!draggedId || draggedId === targetId) return;
+
+      // empêche de créer un cycle (déposer sur son propre subordonné)
+      if(isDescendant(targetId, draggedId)){
+        alert("Impossible : vous ne pouvez pas rattacher un responsable à l'un de ses propres subordonnés.");
+        return;
+      }
+
+      const emp = getEmploye(draggedId);
+      emp.managerId = targetId;
+      saveData();
+      renderAll();
+    });
+  });
+}
+
+// Vérifie si targetId est un descendant de ancestorId
+function isDescendant(targetId, ancestorId){
+  let current = getEmploye(targetId);
+  while(current && current.managerId){
+    if(current.managerId === ancestorId) return true;
+    current = getEmploye(current.managerId);
+  }
+  return false;
 }
 
 function openEmployeDetail(empId){

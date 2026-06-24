@@ -146,6 +146,25 @@ main{padding:24px;max-width:1200px;margin:0 auto;}
 .org-card .name{font-weight:600;font-size:.74rem;line-height:1.2;}
 .org-card .role{font-size:.64rem;margin-top:2px;opacity:.9;}
 
+/* glisser-déposer */
+.org-card[draggable="true"]{ cursor:grab; position:relative; }
+.org-card[draggable="true"]::after{
+  content:"✥";
+  position:absolute;
+  top:4px; right:5px;
+  font-size:.65rem;
+  opacity:.45;
+  pointer-events:none;
+}
+.org-card[draggable="true"]:active{ cursor:grabbing; }
+.org-card.dragging{ opacity:.4; transform:scale(.97); }
+.org-card.drop-target{
+  outline:3px dashed #f59e0b;
+  outline-offset:3px;
+  background-color:#fef9c3 !important;
+  transform:scale(1.05);
+}
+
 /* branche affichée verticalement (un poste en dessous de l'autre) */
 .connector-vert{width:2px;height:14px;background:#c4cdd9;margin:0 auto;}
 .connector-vert.small{height:8px;}
