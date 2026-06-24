@@ -91,125 +91,81 @@ function resetData(){
 }
 
 // =========================================================
-// ORGANIGRAMME — propulsé par OrgChart.js (MIT)
+// ORGANIGRAMME — arbre CSS sur mesure
 // =========================================================
 
-function buildOrgDatasource(){
-  const roots = DATA.employes.filter(e => !e.managerId);
-  if(roots.length === 0) return null;
+const THEMES = {
+  blue:   { lvl0:'#1d4ed8', lvl1:'#2563eb', lvl2:'#dbeafe', txt2:'#1e3a8a' },
+  green:  { lvl0:'#15803d', lvl1:'#16a34a', lvl2:'#dcfce7', txt2:'#14532d' },
+  purple: { lvl0:'#6d28d9', lvl1:'#7c3aed', lvl2:'#ede9fe', txt2:'#4c1d95' },
+  orange: { lvl0:'#c2410c', lvl1:'#ea580c', lvl2:'#ffedd5', txt2:'#7c2d12' },
+  dark:   { lvl0:'#0f172a', lvl1:'#1e293b', lvl2:'#334155', txt2:'#e2e8f0' }
+};
 
-  function buildNode(emp){
-    const poste = getPoste(emp.posteId) || {intitule: ''};
-    const node = {
-      id: emp.id,
-      name: emp.prenom + ' ' + emp.nom,
-      title: poste.intitule
-    };
-    const children = DATA.employes.filter(e => e.managerId === emp.id).map(buildNode);
-    if(children.length) node.children = children;
-    return node;
+function getTheme(){ return THEMES[currentTheme] || THEMES.blue; }
+
+function empCard(emp, level){
+  const poste = getPoste(emp.posteId) || {intitule:''};
+  const t = getTheme();
+  const nom = (emp.prenom||'') + ' ' + (emp.nom||'');
+  const isPlaceholder = nom.includes('compléter') || nom.includes('nommer');
+  const bg   = level===0 ? t.lvl0 : level===1 ? t.lvl1 : t.lvl2;
+  const clr  = level<=1 ? '#fff' : t.txt2;
+  const editAttr = editMode ? `title="Double-clic pour modifier"` : '';
+  return `<div class="emp-card" data-id="${emp.id}" ${editAttr}
+    style="background:${bg};color:${clr};${isPlaceholder?'opacity:.65;':''}"
+    onclick="cardClick('${emp.id}')"
+    ondblclick="openEmployeForm('${emp.id}')">
+    <div class="ec-name">${isPlaceholder ? '<em>'+emp.prenom+'</em>' : nom}</div>
+    <div class="ec-role" style="color:${level<=1?'rgba(255,255,255,.85)':t.txt2+'bb'}">${poste.intitule}</div>
+  </div>`;
+}
+
+function cardClick(id){
+  if(editMode) openEmployeForm(id);
+  else openEmployeDetail(id);
+}
+
+function buildBranch(emp, level){
+  const children = DATA.employes.filter(e => e.managerId === emp.id);
+
+  if(children.length === 0){
+    return `<div class="tree-node">${empCard(emp, level)}</div>`;
   }
 
-  // Un seul root → arbre normal
-  if(roots.length === 1) return buildNode(roots[0]);
-  // Plusieurs roots → nœud virtuel au-dessus
-  return { id: '__root__', name: 'Organisation Logistique', title: 'Luxolor', children: roots.map(buildNode) };
+  // Nœuds feuilles : empilés verticalement (colonne)
+  if(children.every(c => DATA.employes.filter(e=>e.managerId===c.id).length===0)){
+    const leaves = children.map(c => empCard(c, level+1)).join('');
+    return `<div class="tree-node">
+      ${empCard(emp, level)}
+      <div class="branch-connector"></div>
+      <div class="leaf-stack">${leaves}</div>
+    </div>`;
+  }
+
+  // Nœuds avec sous-enfants : disposition horizontale standard
+  const childNodes = children.map(c => buildBranch(c, level+1)).join('');
+  return `<div class="tree-node">
+    ${empCard(emp, level)}
+    <div class="h-children">${childNodes}</div>
+  </div>`;
 }
 
 function renderOrgChart(){
-  if(typeof $ === 'undefined' || typeof $.fn.orgchart === 'undefined'){
-    document.getElementById('orgTreeContainer').innerHTML =
-      '<p style="padding:20px;color:#dc2626">⚠ La librairie OrgChart.js n\'a pas pu se charger. Vérifiez votre connexion internet et rechargez la page.</p>';
+  const container = document.getElementById('orgTreeContainer');
+  const roots = DATA.employes.filter(e => !e.managerId);
+  if(roots.length === 0){
+    container.innerHTML = '<p style="padding:30px;color:#64748b">Aucun employé. Activez le mode édition pour en ajouter.</p>';
     return;
   }
-  const $container = $('#orgTreeContainer');
-  $container.empty();
-
-  const datasource = buildOrgDatasource();
-  if(!datasource){
-    $container.html('<p style="padding:20px;color:#64748b">Aucun employé. Activez le mode édition pour en ajouter.</p>');
-    return;
-  }
-
-  oc = $container.orgchart({
-    data: datasource,
-    nodeContent: 'title',
-    draggable: editMode,
-    editable: false,
-    pan: true,
-    zoom: true,
-    zoominLimit: 3,
-    zoomoutLimit: 0.1,
-    depth: 999,
-
-    createNode: function($node, data){
-      if(data.id === '__root__') return;
-
-      // Masque le bouton collapse/expand natif (≡)
-      $node.find('.oc-node-btn, .edge').hide();
-
-      $node.on('click', function(e){
-        e.stopPropagation();
-        if(editMode){
-          $('.oc-selected').removeClass('oc-selected');
-          $node.addClass('oc-selected');
-        } else {
-          openEmployeDetail(data.id);
-        }
-      });
-
-      $node.on('dblclick', function(e){
-        e.stopPropagation();
-        openEmployeForm(data.id);
-      });
-    },
-
-    onDrop: function(draggedNode, targetNode, reject){
-      const draggedId = $(draggedNode).attr('id');
-      const targetId  = $(targetNode).attr('id');
-
-      if(draggedId === '__root__' || targetId === '__root__'){ reject(); return; }
-
-      if(isDescendantOf(targetId, draggedId)){
-        alert('Impossible : vous ne pouvez pas rattacher un responsable à l\'un de ses propres subordonnés.');
-        reject();
-        return;
-      }
-
-      const emp = getEmploye(draggedId);
-      if(emp){
-        emp.managerId = targetId;
-        saveData();
-      }
-    }
-  });
-
-  // Applique le thème de couleurs
-  $container.find('.orgchart').addClass('org-theme-' + currentTheme);
-
-  // Auto-zoom pour que tout l'organigramme tienne dans l'écran
-  setTimeout(function(){
-    const $oc = $container.find('.orgchart');
-    const wrap = document.getElementById('org-wrap');
-    if(!$oc.length || !wrap) return;
-    const ocW = $oc[0].scrollWidth;
-    const ocH = $oc[0].scrollHeight;
-    const wW  = wrap.clientWidth  - 40;
-    const wH  = wrap.clientHeight - 40;
-    if(ocW > 0 && ocH > 0){
-      const scale = Math.min(wW / ocW, wH / ocH, 1);
-      $oc.css({ transform: 'scale(' + scale + ')', transformOrigin: 'top center' });
-    }
-  }, 200);
+  container.innerHTML = roots.map(r => buildBranch(r, 0)).join('');
 }
 
 function setOrgTheme(theme, btn){
   currentTheme = theme;
-  $('#orgTreeContainer .orgchart')
-    .removeClass('org-theme-blue org-theme-green org-theme-purple org-theme-orange org-theme-dark')
-    .addClass('org-theme-' + theme);
   document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
   if(btn) btn.classList.add('active');
+  renderOrgChart();
 }
 
 function isDescendantOf(targetId, ancestorId){
