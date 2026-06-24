@@ -110,10 +110,13 @@ function empCard(emp, level){
   const dim = level===0 ? '' : level===1 ? '' : 'opacity:.82;';
   const nom = emp.prenom + ' ' + emp.nom;
   const placeholder = nom.includes('compléter')||nom.includes('nommer');
+  const score = perfScore(emp.objectifs||[]);
+  const dot = score ? `<span class="perf-dot" style="background:${score==='green'?'#22c55e':score==='red'?'#ef4444':'#f59e0b'}" title="${score==='green'?'Objectifs atteints':score==='red'?'Objectifs en difficulté':'Objectifs en cours'}"></span>` : '';
   return `<div class="ec lv${level}" data-id="${emp.id}"
-    style="background:${bg};color:${clr};${dim}"
+    style="background:${bg};color:${clr};${dim}position:relative;"
     onclick="cardClick('${emp.id}')"
     ondblclick="openEmployeForm('${emp.id}')">
+    ${dot}
     <div class="ec-n">${placeholder?'<em>'+emp.prenom+'</em>':nom}</div>
     <div class="ec-r" style="color:${level<=1?'rgba(255,255,255,.8)':th.t2+'99'}">${poste.intitule}</div>
   </div>`;
@@ -176,28 +179,184 @@ function isDescendantOf(targetId, ancestorId){
   return false;
 }
 
+// =========================================================
+// OBJECTIFS — helpers
+// =========================================================
+function getObjectifs(empId){ return (getEmploye(empId)||{}).objectifs || []; }
+
+function perfScore(objectifs){
+  if(!objectifs.length) return null;
+  const atteints = objectifs.filter(o=>o.statut==='atteint').length;
+  const nonAtteints = objectifs.filter(o=>o.statut==='non_atteint').length;
+  if(atteints === objectifs.length) return 'green';
+  if(nonAtteints > 0) return 'red';
+  return 'orange';
+}
+
+function statutLabel(s){
+  return s==='atteint'?'✅ Atteint':s==='non_atteint'?'❌ Non atteint':'🔄 En cours';
+}
+
+function progressBar(pct){
+  const p = Math.min(100, Math.max(0, pct||0));
+  const c = p>=100?'#16a34a':p>=60?'#f59e0b':'#dc2626';
+  return `<div style="background:#e2e8f0;border-radius:99px;height:8px;width:100%;margin-top:4px">
+    <div style="width:${p}%;background:${c};height:8px;border-radius:99px;transition:width .4s"></div>
+  </div><div style="font-size:.7rem;color:#64748b;margin-top:2px">${p}%</div>`;
+}
+
+function renderObjectifsSection(empId){
+  const objectifs = getObjectifs(empId);
+  if(!objectifs.length) return `
+    <div style="color:#64748b;font-size:.85rem;padding:12px 0;">Aucun objectif défini pour cet employé.</div>
+    ${editMode?`<button class="btn" style="margin-top:8px" onclick="openObjForm('${empId}',null)">+ Ajouter un objectif</button>`:''}
+  `;
+  const rows = objectifs.map(o=>`
+    <div class="obj-card" style="border-left:4px solid ${o.statut==='atteint'?'#16a34a':o.statut==='non_atteint'?'#dc2626':'#f59e0b'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div>
+          <div style="font-weight:700;font-size:.88rem">${o.titre}</div>
+          <div style="font-size:.75rem;color:#64748b;margin-top:2px">${o.indicateur||''} ${o.echeance?'· Échéance : '+o.echeance:''}</div>
+        </div>
+        <span class="obj-badge" style="background:${o.statut==='atteint'?'#dcfce7':o.statut==='non_atteint'?'#fee2e2':'#fef9c3'};color:${o.statut==='atteint'?'#15803d':o.statut==='non_atteint'?'#b91c1c':'#92400e'}">${statutLabel(o.statut)}</span>
+      </div>
+      ${progressBar(o.avancement)}
+      ${o.description?`<div style="font-size:.78rem;color:#475569;margin-top:6px">${o.description}</div>`:''}
+      ${editMode?`<div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn secondary" style="font-size:.75rem;padding:4px 10px" onclick="openObjForm('${empId}','${o.id}')">Modifier</button>
+        <button class="btn danger" style="font-size:.75rem;padding:4px 10px" onclick="deleteObj('${empId}','${o.id}')">Supprimer</button>
+      </div>`:''}
+    </div>
+  `).join('');
+  return `<div style="display:flex;flex-direction:column;gap:10px">${rows}</div>
+    ${editMode?`<button class="btn" style="margin-top:12px" onclick="openObjForm('${empId}',null)">+ Ajouter un objectif</button>`:''}`;
+}
+
+// =========================================================
+// FICHE EMPLOYÉ — avec onglets Info / Objectifs
+// =========================================================
 function openEmployeDetail(empId){
   const emp = getEmploye(empId);
   if(!emp) return;
   const poste = getPoste(emp.posteId);
   const manager = emp.managerId ? getEmploye(emp.managerId) : null;
+  const score = perfScore(getObjectifs(empId));
+  const scoreBadge = score
+    ? `<span style="display:inline-block;margin-left:8px;padding:2px 10px;border-radius:99px;font-size:.75rem;font-weight:700;background:${score==='green'?'#dcfce7':score==='red'?'#fee2e2':'#fef9c3'};color:${score==='green'?'#15803d':score==='red'?'#b91c1c':'#92400e'}">${score==='green'?'✅ Objectifs atteints':score==='red'?'⚠ Objectifs en difficulté':'🔄 En cours'}</span>`
+    : '';
+
   const body = document.getElementById("employeDetailBody");
   body.innerHTML = `
-    <h2>${emp.prenom} ${emp.nom}</h2>
-    <p><strong>Poste :</strong> ${poste ? poste.intitule : emp.posteId}</p>
-    <p><strong>Service :</strong> ${poste ? poste.service : "—"}</p>
-    <p><strong>Responsable hiérarchique :</strong> ${manager ? manager.prenom+" "+manager.nom : "Aucun (sommet)"}</p>
-    <p><strong>Email :</strong> ${emp.email || "—"}</p>
-    <p><strong>Téléphone :</strong> ${emp.telephone || "—"}</p>
-    <p><strong>Date d'entrée :</strong> ${emp.dateEntree || "—"}</p>
-    ${poste ? `<button class="btn secondary" onclick="closeAllModals();switchTab('postes');openPosteDetail('${poste.id}')">Voir la fiche de poste</button>` : ""}
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <h2 style="margin:0">${emp.prenom} ${emp.nom}</h2>${scoreBadge}
+    </div>
+
+    <!-- Onglets -->
+    <div class="detail-tabs">
+      <button class="dtab active" onclick="switchDetailTab('info','${empId}',this)">Informations</button>
+      <button class="dtab" onclick="switchDetailTab('objectifs','${empId}',this)">Objectifs (${getObjectifs(empId).length})</button>
+    </div>
+
+    <!-- Panneau Info -->
+    <div id="dtab-info" class="dtab-panel">
+      <p><strong>Poste :</strong> ${poste ? poste.intitule : emp.posteId}</p>
+      <p><strong>Service :</strong> ${poste ? poste.service : "—"}</p>
+      <p><strong>Responsable :</strong> ${manager ? manager.prenom+" "+manager.nom : "Aucun (sommet)"}</p>
+      <p><strong>Email :</strong> ${emp.email || "—"}</p>
+      <p><strong>Téléphone :</strong> ${emp.telephone || "—"}</p>
+      <p><strong>Date d'entrée :</strong> ${emp.dateEntree || "—"}</p>
+      ${poste ? `<button class="btn secondary" style="margin-top:8px" onclick="closeAllModals();switchTab('postes');openPosteDetail('${poste.id}')">Voir la fiche de poste</button>` : ""}
+    </div>
+
+    <!-- Panneau Objectifs -->
+    <div id="dtab-objectifs" class="dtab-panel" style="display:none">
+      ${renderObjectifsSection(empId)}
+    </div>
   `;
   const actions = document.getElementById("employeDetailActions");
   actions.innerHTML = editMode ? `
-    <button class="btn" onclick="openEmployeForm('${emp.id}')">Modifier</button>
+    <button class="btn" onclick="openEmployeForm('${emp.id}')">Modifier les infos</button>
     <button class="btn danger" onclick="deleteEmploye('${emp.id}')">Supprimer</button>
   ` : "";
   openModal("employeDetailModal");
+}
+
+function switchDetailTab(tab, empId, btn){
+  document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.dtab-panel').forEach(p=>p.style.display='none');
+  document.getElementById('dtab-'+tab).style.display='block';
+}
+
+// =========================================================
+// CRUD OBJECTIFS
+// =========================================================
+function openObjForm(empId, objId){
+  const emp = getEmploye(empId);
+  const obj = objId ? (emp.objectifs||[]).find(o=>o.id===objId) : null;
+  const body = document.getElementById("employeFormBody");
+  body.innerHTML = `
+    <h2>${obj?'Modifier':'Ajouter'} un objectif — ${emp.prenom} ${emp.nom}</h2>
+    <div class="field-row"><label>Titre de l'objectif *</label>
+      <input id="of_titre" value="${obj?obj.titre:''}" placeholder="Ex : Réduire le taux d'écart d'inventaire"></div>
+    <div class="field-row"><label>Description</label>
+      <textarea id="of_desc" placeholder="Contexte, détails...">${obj?obj.description:''}</textarea></div>
+    <div class="field-row"><label>Indicateur / KPI</label>
+      <input id="of_kpi" value="${obj?obj.indicateur:''}" placeholder="Ex : Taux d'écart < 2%"></div>
+    <div class="field-row"><label>Avancement (%)</label>
+      <input id="of_avanc" type="number" min="0" max="100" value="${obj?obj.avancement:0}" style="width:100px"></div>
+    <div class="field-row"><label>Statut</label>
+      <select id="of_statut">
+        <option value="en_cours" ${!obj||obj.statut==='en_cours'?'selected':''}>🔄 En cours</option>
+        <option value="atteint" ${obj&&obj.statut==='atteint'?'selected':''}>✅ Atteint</option>
+        <option value="non_atteint" ${obj&&obj.statut==='non_atteint'?'selected':''}>❌ Non atteint</option>
+      </select></div>
+    <div class="field-row"><label>Date d'échéance</label>
+      <input id="of_ech" type="date" value="${obj?obj.echeance:''}"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="saveObjForm('${empId}','${objId||''}')">Enregistrer</button>
+      <button class="btn secondary" onclick="openEmployeDetail('${empId}')">Annuler</button>
+    </div>
+  `;
+  openModal("employeFormModal");
+}
+
+function saveObjForm(empId, objId){
+  const emp = getEmploye(empId);
+  if(!emp.objectifs) emp.objectifs = [];
+  const data = {
+    titre:      document.getElementById("of_titre").value.trim(),
+    description:document.getElementById("of_desc").value.trim(),
+    indicateur: document.getElementById("of_kpi").value.trim(),
+    avancement: parseInt(document.getElementById("of_avanc").value)||0,
+    statut:     document.getElementById("of_statut").value,
+    echeance:   document.getElementById("of_ech").value
+  };
+  if(!data.titre){ alert("Le titre est obligatoire."); return; }
+  if(objId){
+    Object.assign(emp.objectifs.find(o=>o.id===objId), data);
+  } else {
+    data.id = "obj_" + Date.now();
+    emp.objectifs.push(data);
+  }
+  saveData();
+  openEmployeDetail(empId);
+  setTimeout(()=>{
+    const btn = document.querySelector('.dtab:nth-child(2)');
+    if(btn) btn.click();
+  }, 50);
+}
+
+function deleteObj(empId, objId){
+  if(!confirm("Supprimer cet objectif ?")) return;
+  const emp = getEmploye(empId);
+  emp.objectifs = (emp.objectifs||[]).filter(o=>o.id!==objId);
+  saveData();
+  openEmployeDetail(empId);
+  setTimeout(()=>{
+    const btn = document.querySelector('.dtab:nth-child(2)');
+    if(btn) btn.click();
+  }, 50);
 }
 
 function deleteEmploye(empId){

@@ -192,6 +192,38 @@ main{padding:16px 24px;max-width:100%;margin:0;}
   width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:.88rem;
 }
 
+/* ===== Onglets dans la fiche employé ===== */
+.detail-tabs{
+  display:flex;gap:4px;margin-bottom:16px;
+  border-bottom:2px solid var(--border);padding-bottom:0;
+}
+.dtab{
+  background:none;border:none;cursor:pointer;
+  padding:8px 16px;font-size:.88rem;color:var(--muted);
+  border-bottom:3px solid transparent;margin-bottom:-2px;
+  font-weight:500;transition:color .15s;
+}
+.dtab.active{color:var(--primary);border-bottom-color:var(--primary);}
+.dtab-panel{ padding-top:4px; }
+
+/* ===== Carte objectif ===== */
+.obj-card{
+  background:#f8fafc;border-radius:10px;
+  padding:12px 14px;
+  border-left:4px solid #94a3b8;
+}
+.obj-badge{
+  display:inline-block;border-radius:99px;
+  padding:3px 10px;font-size:.72rem;font-weight:700;white-space:nowrap;
+}
+
+/* ===== Point de performance sur carte organigramme ===== */
+.perf-dot{
+  position:absolute;top:6px;right:6px;
+  width:10px;height:10px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.7);
+}
+
 @media print{
   header,nav.tabs,.toolbar,.edit-toggle,.modal-actions,.close-btn{display:none!important;}
   .modal-overlay{position:static;background:none;}
