@@ -79,94 +79,59 @@ main{padding:16px 24px;max-width:100%;margin:0;}
   border:1px solid var(--border);
 }
 #orgTreeContainer{
-  display:inline-flex;
-  flex-direction:column;
-  align-items:center;
-  padding:30px 40px 40px;
-  min-width:100%;
+  padding:30px 20px 40px;
+  display:flex;
+  justify-content:center;
+  min-width:max-content;
 }
 
-/* ===== Carte employé ===== */
-.emp-card{
+/* ===== Cartes ===== */
+.ec{
   border-radius:10px;
-  padding:10px 14px;
-  min-width:150px;
-  max-width:170px;
-  box-shadow:0 2px 8px rgba(0,0,0,.18);
+  padding:10px 16px;
+  width:160px;
+  box-sizing:border-box;
+  box-shadow:0 3px 10px rgba(0,0,0,.2);
   cursor:pointer;
-  transition:transform .12s, box-shadow .12s;
   text-align:center;
   user-select:none;
+  transition:transform .12s, box-shadow .12s;
 }
-.emp-card:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.22); }
-.ec-name{ font-weight:700; font-size:.82rem; line-height:1.25; }
-.ec-role{ font-size:.7rem; margin-top:3px; line-height:1.2; }
+.ec:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.28); }
+.ec.lv0{ width:200px; }
+.ec-n{ font-weight:700; font-size:.82rem; line-height:1.3; }
+.ec-r{ font-size:.68rem; margin-top:3px; line-height:1.2; }
 
-/* ===== Structure arbre ===== */
-/* Nœud = carte + ses enfants */
-.tree-node{
+/* ===== Structure ===== */
+.org-root{
   display:flex;
   flex-direction:column;
   align-items:center;
-  position:relative;
 }
 
-/* Ligne verticale entre parent et ses enfants */
-.tree-node > .h-children::before,
-.tree-node > .branch-connector{
-  content:'';
-  display:block;
-  width:2px;
-  height:24px;
-  background:#94a3b8;
-  margin:0 auto;
-}
-
-/* Ligne horizontale au-dessus des enfants */
-.h-children{
+/* Rangée des 4 branches */
+.branches-row{
   display:flex;
   flex-direction:row;
-  gap:0;
   align-items:flex-start;
-  position:relative;
-}
-.h-children::before{ display:none; }
-.h-children::after{
-  content:'';
-  position:absolute;
-  top:0; left:50%; right:50%;
-  height:2px;
-  background:#94a3b8;
-  /* sera étiré dynamiquement par la largeur des enfants */
-  width:calc(100% - 170px);
-  transform:translateX(-50%);
+  gap:16px;
 }
 
-/* Chaque enfant direct dans la rangée horizontale */
-.h-children > .tree-node{
-  padding:0 16px;
-  position:relative;
-}
-/* Petite ligne verticale de jonction vers la barre horizontale */
-.h-children > .tree-node::before{
-  content:'';
-  display:block;
-  width:2px;
-  height:24px;
-  background:#94a3b8;
-  margin:0 auto;
-}
-
-/* Colonne d'agents feuilles (empilés verticalement) */
-.leaf-stack{
+/* Colonne d'une branche : responsable + agents */
+.branch-col{
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:6px;
+  width:168px;
 }
-.leaf-stack .emp-card{
-  min-width:140px;
-  max-width:150px;
+
+/* Agents empilés verticalement */
+.agents-col{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  align-items:center;
+  width:100%;
 }
 
 /* ===== Pastilles de thème ===== */

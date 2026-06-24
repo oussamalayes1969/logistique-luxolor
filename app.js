@@ -91,33 +91,31 @@ function resetData(){
 }
 
 // =========================================================
-// ORGANIGRAMME — arbre CSS sur mesure
+// ORGANIGRAMME
 // =========================================================
 
 const THEMES = {
-  blue:   { lvl0:'#1d4ed8', lvl1:'#2563eb', lvl2:'#dbeafe', txt2:'#1e3a8a' },
-  green:  { lvl0:'#15803d', lvl1:'#16a34a', lvl2:'#dcfce7', txt2:'#14532d' },
-  purple: { lvl0:'#6d28d9', lvl1:'#7c3aed', lvl2:'#ede9fe', txt2:'#4c1d95' },
-  orange: { lvl0:'#c2410c', lvl1:'#ea580c', lvl2:'#ffedd5', txt2:'#7c2d12' },
-  dark:   { lvl0:'#0f172a', lvl1:'#1e293b', lvl2:'#334155', txt2:'#e2e8f0' }
+  blue:   { c0:'#1d4ed8', c1:'#3b82f6', c2:'#bfdbfe', t2:'#1e3a8a' },
+  green:  { c0:'#15803d', c1:'#22c55e', c2:'#bbf7d0', t2:'#14532d' },
+  purple: { c0:'#6d28d9', c1:'#a855f7', c2:'#e9d5ff', t2:'#4c1d95' },
+  orange: { c0:'#c2410c', c1:'#f97316', c2:'#fed7aa', t2:'#7c2d12' },
+  dark:   { c0:'#0f172a', c1:'#334155', c2:'#475569', t2:'#f1f5f9' }
 };
-
-function getTheme(){ return THEMES[currentTheme] || THEMES.blue; }
 
 function empCard(emp, level){
   const poste = getPoste(emp.posteId) || {intitule:''};
-  const t = getTheme();
-  const nom = (emp.prenom||'') + ' ' + (emp.nom||'');
-  const isPlaceholder = nom.includes('compléter') || nom.includes('nommer');
-  const bg   = level===0 ? t.lvl0 : level===1 ? t.lvl1 : t.lvl2;
-  const clr  = level<=1 ? '#fff' : t.txt2;
-  const editAttr = editMode ? `title="Double-clic pour modifier"` : '';
-  return `<div class="emp-card" data-id="${emp.id}" ${editAttr}
-    style="background:${bg};color:${clr};${isPlaceholder?'opacity:.65;':''}"
+  const th = THEMES[currentTheme] || THEMES.blue;
+  const bg  = level===0 ? th.c0 : level===1 ? th.c1 : th.c2;
+  const clr = level<=1 ? '#fff' : th.t2;
+  const dim = level===0 ? '' : level===1 ? '' : 'opacity:.82;';
+  const nom = emp.prenom + ' ' + emp.nom;
+  const placeholder = nom.includes('compléter')||nom.includes('nommer');
+  return `<div class="ec lv${level}" data-id="${emp.id}"
+    style="background:${bg};color:${clr};${dim}"
     onclick="cardClick('${emp.id}')"
     ondblclick="openEmployeForm('${emp.id}')">
-    <div class="ec-name">${isPlaceholder ? '<em>'+emp.prenom+'</em>' : nom}</div>
-    <div class="ec-role" style="color:${level<=1?'rgba(255,255,255,.85)':t.txt2+'bb'}">${poste.intitule}</div>
+    <div class="ec-n">${placeholder?'<em>'+emp.prenom+'</em>':nom}</div>
+    <div class="ec-r" style="color:${level<=1?'rgba(255,255,255,.8)':th.t2+'99'}">${poste.intitule}</div>
   </div>`;
 }
 
@@ -126,39 +124,40 @@ function cardClick(id){
   else openEmployeDetail(id);
 }
 
-function buildBranch(emp, level){
-  const children = DATA.employes.filter(e => e.managerId === emp.id);
-
-  if(children.length === 0){
-    return `<div class="tree-node">${empCard(emp, level)}</div>`;
-  }
-
-  // Nœuds feuilles : empilés verticalement (colonne)
-  if(children.every(c => DATA.employes.filter(e=>e.managerId===c.id).length===0)){
-    const leaves = children.map(c => empCard(c, level+1)).join('');
-    return `<div class="tree-node">
-      ${empCard(emp, level)}
-      <div class="branch-connector"></div>
-      <div class="leaf-stack">${leaves}</div>
-    </div>`;
-  }
-
-  // Nœuds avec sous-enfants : disposition horizontale standard
-  const childNodes = children.map(c => buildBranch(c, level+1)).join('');
-  return `<div class="tree-node">
-    ${empCard(emp, level)}
-    <div class="h-children">${childNodes}</div>
-  </div>`;
-}
+function vline(h){ return `<div style="width:2px;height:${h}px;background:#94a3b8;margin:0 auto;"></div>`; }
+function hline(){ return `<div style="height:2px;background:#94a3b8;position:absolute;top:0;left:50%;right:50%;width:calc(100% - 80px);transform:translateX(-50%);"></div>`; }
 
 function renderOrgChart(){
   const container = document.getElementById('orgTreeContainer');
-  const roots = DATA.employes.filter(e => !e.managerId);
-  if(roots.length === 0){
+  const root = DATA.employes.find(e => !e.managerId);
+  if(!root){
     container.innerHTML = '<p style="padding:30px;color:#64748b">Aucun employé. Activez le mode édition pour en ajouter.</p>';
     return;
   }
-  container.innerHTML = roots.map(r => buildBranch(r, 0)).join('');
+
+  const branches = DATA.employes.filter(e => e.managerId === root.id);
+
+  // Colonnes : une par responsable
+  const cols = branches.map(branch => {
+    const agents = DATA.employes.filter(e => e.managerId === branch.id);
+    const agentsHtml = agents.length
+      ? vline(10) + `<div class="agents-col">${agents.map(a=>empCard(a,2)).join('')}</div>`
+      : '';
+    return `<div class="branch-col">
+      ${vline(20)}
+      ${empCard(branch,1)}
+      ${agentsHtml}
+    </div>`;
+  }).join('');
+
+  const branchesHtml = branches.length
+    ? `${vline(24)}<div class="branches-row" style="position:relative">${hline()}${cols}</div>`
+    : '';
+
+  container.innerHTML = `<div class="org-root">
+    ${empCard(root,0)}
+    ${branchesHtml}
+  </div>`;
 }
 
 function setOrgTheme(theme, btn){
