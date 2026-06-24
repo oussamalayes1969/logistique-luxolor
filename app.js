@@ -138,13 +138,16 @@ function renderOrgChart(){
     editable: false,
     pan: true,
     zoom: true,
-    zoominLimit: 2.5,
-    zoomoutLimit: 0.2,
+    zoominLimit: 3,
+    zoomoutLimit: 0.1,
+    depth: 999,
 
     createNode: function($node, data){
       if(data.id === '__root__') return;
 
-      // Simple clic : ouvrir la fiche (hors mode édition) ou sélectionner (en édition)
+      // Masque le bouton collapse/expand natif (≡)
+      $node.find('.oc-node-btn, .edge').hide();
+
       $node.on('click', function(e){
         e.stopPropagation();
         if(editMode){
@@ -155,7 +158,6 @@ function renderOrgChart(){
         }
       });
 
-      // Double-clic : ouvrir le formulaire de modification
       $node.on('dblclick', function(e){
         e.stopPropagation();
         openEmployeForm(data.id);
@@ -181,6 +183,13 @@ function renderOrgChart(){
       }
     }
   });
+
+  // Force l'affichage de tous les niveaux (évite les nœuds cachés par défaut)
+  setTimeout(function(){
+    $container.find('.orgchart table').show();
+    $container.find('.orgchart ul').show();
+    $container.find('.orgchart td').show();
+  }, 50);
 
   // Applique le thème de couleurs
   $container.find('.orgchart').addClass('org-theme-' + currentTheme);
