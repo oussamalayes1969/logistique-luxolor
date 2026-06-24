@@ -6,7 +6,8 @@
 // navigateur (mode édition), on l'utilise ; sinon celle de data.js
 let DATA = loadData();
 let editMode = false;
-let currentZoom = 100;
+let currentTheme = 'blue';
+let oc = null;
 
 function loadData(){
   const saved = localStorage.getItem("logistique_data");
@@ -65,7 +66,10 @@ function toggleEditMode(){
   document.getElementById("addPosteBtn").style.display = editMode ? "inline-block" : "none";
   document.getElementById("addFonctionBtn").style.display = editMode ? "inline-block" : "none";
   document.getElementById("addEmployeBtn").style.display = editMode ? "inline-block" : "none";
-  renderAll();
+  document.getElementById("editHint").style.display = editMode ? "inline" : "none";
+  renderOrgChart();
+  renderPostes();
+  renderFonctions();
 }
 
 function exportData(){
@@ -87,141 +91,110 @@ function resetData(){
 }
 
 // =========================================================
-// ORGANIGRAMME
+// ORGANIGRAMME — propulsé par OrgChart.js (MIT)
 // =========================================================
-function getInitials(emp){
-  const realNom = (emp.nom && !emp.nom.toLowerCase().includes("compléter") && !emp.nom.toLowerCase().includes("nommer")) ? emp.nom : "";
-  const a = (emp.prenom||"?").trim()[0] || "?";
-  const b = (realNom || emp.prenom.trim().split(" ")[1] || "?")[0];
-  return (a+b).toUpperCase();
-}
 
-function employeCard(emp, level){
-  const poste = getPoste(emp.posteId) || {intitule: emp.posteId};
-  const lvl = Math.min(level, 3);
-  const dragAttr = editMode ? `draggable="true" data-empid="${emp.id}"` : "";
-  return `<div class="org-card level-${lvl}" ${dragAttr} data-empid="${emp.id}" onclick="openEmployeDetail('${emp.id}')">
-      <div class="avatar">${getInitials(emp)}</div>
-      <div class="name">${emp.prenom} ${emp.nom}</div>
-      <div class="role">${poste.intitule}</div>
-    </div>`;
-}
+function buildOrgDatasource(){
+  const roots = DATA.employes.filter(e => !e.managerId);
+  if(roots.length === 0) return null;
 
-function buildVerticalStack(children, level){
-  let html = `<div class="connector-vert"></div><div class="vertical-stack">`;
-  children.forEach((c,i)=>{
-    if(i>0) html += `<div class="connector-vert small"></div>`;
-    html += employeCard(c, level);
-  });
-  html += `</div>`;
-  return html;
-}
-
-function buildOrgNode(emp, level){
-  const children = DATA.employes.filter(e=>e.managerId===emp.id);
-  let html = `<li>${employeCard(emp, level)}`;
-  if(children.length>0 && emp.childrenLayout === "vertical"){
-    html += buildVerticalStack(children, level+1);
-  } else if(children.length>0){
-    html += `<ul>${children.map(c=>buildOrgNode(c, level+1)).join("")}</ul>`;
+  function buildNode(emp){
+    const poste = getPoste(emp.posteId) || {intitule: ''};
+    const node = {
+      id: emp.id,
+      name: emp.prenom + ' ' + emp.nom,
+      title: poste.intitule
+    };
+    const children = DATA.employes.filter(e => e.managerId === emp.id).map(buildNode);
+    if(children.length) node.children = children;
+    return node;
   }
-  html += `</li>`;
-  return html;
+
+  // Un seul root → arbre normal
+  if(roots.length === 1) return buildNode(roots[0]);
+  // Plusieurs roots → nœud virtuel au-dessus
+  return { id: '__root__', name: 'Organisation Logistique', title: 'Luxolor', children: roots.map(buildNode) };
 }
 
 function renderOrgChart(){
-  const container = document.getElementById("orgTreeContainer");
-  const roots = DATA.employes.filter(e=>!e.managerId);
-  if(roots.length===0){ container.innerHTML = "<p>Aucun employé.</p>"; return; }
+  const $container = $('#orgTreeContainer');
+  $container.empty();
 
-  container.innerHTML = `<ul class="org-tree">${roots.map(r=>buildOrgNode(r,0)).join("")}</ul>`;
-  if(editMode) setupDragDrop();
-}
+  const datasource = buildOrgDatasource();
+  if(!datasource){
+    $container.html('<p style="padding:20px;color:#64748b">Aucun employé. Activez le mode édition pour en ajouter.</p>');
+    return;
+  }
 
-// =========================================================
-// ZOOM
-// =========================================================
-function applyZoom(val){
-  currentZoom = parseInt(val);
-  document.getElementById("orgTreeContainer").style.transform = `scale(${currentZoom/100})`;
-  document.getElementById("orgTreeContainer").style.transformOrigin = "top center";
-  document.getElementById("zoomSlider").value = currentZoom;
-  document.getElementById("zoomLabel").textContent = currentZoom + "%";
-  // ajuste la hauteur du conteneur pour éviter le chevauchement
-  const el = document.getElementById("orgTreeContainer");
-  el.parentElement.style.minHeight = (el.scrollHeight * currentZoom / 100 + 40) + "px";
-}
+  oc = $container.orgchart({
+    data: datasource,
+    nodeContent: 'title',
+    draggable: editMode,
+    editable: false,
+    pan: true,
+    zoom: true,
+    zoominLimit: 2.5,
+    zoomoutLimit: 0.2,
 
-function changeZoom(delta){
-  if(delta === 0){ applyZoom(100); return; }
-  applyZoom(Math.min(150, Math.max(40, currentZoom + delta)));
-}
+    createNode: function($node, data){
+      if(data.id === '__root__') return;
 
-// =========================================================
-// GLISSER-DÉPOSER (drag & drop) — actif en mode édition
-// =========================================================
-let draggedId = null;
-let didDrag = false;   // empêche le clic de s'ouvrir après un glisser
+      // Simple clic : ouvrir la fiche (hors mode édition) ou sélectionner (en édition)
+      $node.on('click', function(e){
+        e.stopPropagation();
+        if(editMode){
+          $('.oc-selected').removeClass('oc-selected');
+          $node.addClass('oc-selected');
+        } else {
+          openEmployeDetail(data.id);
+        }
+      });
 
-function setupDragDrop(){
-  const cards = document.querySelectorAll(".org-card[draggable='true']");
+      // Double-clic : ouvrir le formulaire de modification
+      $node.on('dblclick', function(e){
+        e.stopPropagation();
+        openEmployeForm(data.id);
+      });
+    },
 
-  cards.forEach(card => {
-    card.addEventListener("dragstart", e => {
-      draggedId = card.dataset.empid;
-      didDrag = false;
-      card.classList.add("dragging");
-      e.dataTransfer.effectAllowed = "move";
-      // petit délai pour que le ghost de drag soit visible
-      setTimeout(() => card.classList.add("dragging"), 0);
-    });
+    onDrop: function(draggedNode, targetNode, reject){
+      const draggedId = $(draggedNode).attr('id');
+      const targetId  = $(targetNode).attr('id');
 
-    card.addEventListener("dragend", () => {
-      didDrag = true;
-      document.querySelectorAll(".org-card").forEach(c =>
-        c.classList.remove("dragging", "drop-target"));
-      draggedId = null;
-      // remet le flag à false après le cycle d'événements
-      setTimeout(() => { didDrag = false; }, 200);
-    });
+      if(draggedId === '__root__' || targetId === '__root__'){ reject(); return; }
 
-    card.addEventListener("dragover", e => {
-      e.preventDefault();
-      if(card.dataset.empid !== draggedId)
-        card.classList.add("drop-target");
-      e.dataTransfer.dropEffect = "move";
-    });
-
-    card.addEventListener("dragleave", () =>
-      card.classList.remove("drop-target"));
-
-    card.addEventListener("drop", e => {
-      e.preventDefault();
-      card.classList.remove("drop-target");
-      const targetId = card.dataset.empid;
-      if(!draggedId || draggedId === targetId) return;
-
-      if(isDescendant(targetId, draggedId)){
-        alert("Impossible : vous ne pouvez pas rattacher un responsable à l'un de ses propres subordonnés.");
+      if(isDescendantOf(targetId, draggedId)){
+        alert('Impossible : vous ne pouvez pas rattacher un responsable à l\'un de ses propres subordonnés.');
+        reject();
         return;
       }
-      getEmploye(draggedId).managerId = targetId;
-      saveData();
-      renderAll();
-    });
 
-    // bloque le clic si on vient de faire un glisser
-    card.addEventListener("click", e => {
-      if(didDrag){ e.stopImmediatePropagation(); }
-    }, true);
+      const emp = getEmploye(draggedId);
+      if(emp){
+        emp.managerId = targetId;
+        saveData();
+      }
+    }
   });
+
+  // Applique le thème de couleurs
+  $container.find('.orgchart').addClass('org-theme-' + currentTheme);
 }
 
-function isDescendant(targetId, ancestorId){
-  let current = getEmploye(targetId);
-  while(current && current.managerId){
-    if(current.managerId === ancestorId) return true;
-    current = getEmploye(current.managerId);
+function setOrgTheme(theme, btn){
+  currentTheme = theme;
+  $('#orgTreeContainer .orgchart')
+    .removeClass('org-theme-blue org-theme-green org-theme-purple org-theme-orange org-theme-dark')
+    .addClass('org-theme-' + theme);
+  document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+function isDescendantOf(targetId, ancestorId){
+  let cur = getEmploye(targetId);
+  while(cur && cur.managerId){
+    if(cur.managerId === ancestorId) return true;
+    cur = getEmploye(cur.managerId);
   }
   return false;
 }

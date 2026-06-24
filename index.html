@@ -8,12 +8,14 @@
 <meta http-equiv="Expires" content="0">
 <title>Organisation Logistique - Luxolor</title>
 <script>
-  // Force le navigateur à toujours charger la version la plus récente
   if(!window.location.search.includes('fresh=')){
     window.location.replace(window.location.pathname + '?fresh=' + Date.now());
   }
 </script>
-<link rel="stylesheet" href="style.css?v=20260623h">
+
+<!-- OrgChart.js (MIT, gratuit) via CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@dabeng/orgchart@3.8.0/dist/css/jquery.orgchart.min.css">
+<link rel="stylesheet" href="style.css?v=20260624a">
 </head>
 <body>
 
@@ -36,21 +38,33 @@
   <!-- ORGANIGRAMME -->
   <section id="organigramme" class="tab-panel active">
     <div class="toolbar">
-      <div class="zoom-controls">
-        <span style="color:var(--muted);font-size:.82rem;">Zoom :</span>
-        <button class="zoom-btn" onclick="changeZoom(-10)">−</button>
-        <input type="range" id="zoomSlider" min="40" max="150" value="100" oninput="applyZoom(this.value)">
-        <button class="zoom-btn" onclick="changeZoom(10)">+</button>
-        <span id="zoomLabel" style="color:var(--muted);font-size:.78rem;min-width:36px;">100%</span>
-        <button class="zoom-btn" onclick="changeZoom(0)" title="Réinitialiser zoom">⟳</button>
+
+      <!-- Thèmes couleurs -->
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="color:var(--muted);font-size:.82rem;">Thème :</span>
+        <div class="theme-dot active" style="background:#1d4ed8" onclick="setOrgTheme('blue',this)" title="Bleu"></div>
+        <div class="theme-dot" style="background:#15803d" onclick="setOrgTheme('green',this)" title="Vert"></div>
+        <div class="theme-dot" style="background:#7c3aed" onclick="setOrgTheme('purple',this)" title="Violet"></div>
+        <div class="theme-dot" style="background:#ea580c" onclick="setOrgTheme('orange',this)" title="Orange"></div>
+        <div class="theme-dot" style="background:#1e293b" onclick="setOrgTheme('dark',this)" title="Sombre"></div>
       </div>
-      <div>
+
+      <!-- Info édition -->
+      <span id="editHint" style="color:var(--muted);font-size:.8rem;display:none;">
+        ✥ Glissez les cartes · Double-clic pour éditer · Clic pour la fiche
+      </span>
+
+      <div style="display:flex;gap:8px;align-items:center;">
         <button id="addEmployeBtn" class="btn" style="display:none;">+ Ajouter un employé</button>
         <button id="exportBtn" class="btn secondary">Exporter data.js</button>
         <button id="resetBtn" class="btn secondary">Réinitialiser</button>
       </div>
     </div>
-    <div class="org-tree-wrap"><div id="orgTreeContainer"></div></div>
+
+    <!-- Conteneur OrgChart.js -->
+    <div id="org-wrap">
+      <div id="orgTreeContainer"></div>
+    </div>
   </section>
 
   <!-- FICHES DE POSTE -->
@@ -74,7 +88,6 @@
 </main>
 
 <!-- ===== MODALS ===== -->
-
 <div class="modal-overlay" id="employeDetailModal">
   <div class="modal">
     <button class="close-btn">✕</button>
@@ -120,7 +133,10 @@
   </div>
 </div>
 
-<script src="data.js?v=20260623h"></script>
-<script src="app.js?v=20260623h"></script>
+<!-- jQuery requis par OrgChart.js -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@dabeng/orgchart@3.8.0/dist/js/jquery.orgchart.min.js"></script>
+<script src="data.js?v=20260624a"></script>
+<script src="app.js?v=20260624a"></script>
 </body>
 </html>

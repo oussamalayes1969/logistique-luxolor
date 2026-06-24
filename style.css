@@ -65,129 +65,90 @@ nav.tabs button.active{
   border-bottom-color:var(--primary);
 }
 
-main{padding:24px;max-width:1200px;margin:0 auto;}
+main{padding:16px 24px;max-width:100%;margin:0;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 
-/* ===== Organigramme (lignes connectées, style classique) ===== */
-.org-tree-wrap{overflow-x:auto;padding:30px 10px;}
-
-.org-tree, .org-tree ul{
-  display:table;
-  margin:0 auto;
-  list-style:none;
-  padding:0;
+/* ===== Conteneur OrgChart.js ===== */
+#org-wrap{
+  width:100%;
+  height:calc(100vh - 148px);
+  overflow:hidden;
+  background:var(--bg);
+  border-radius:var(--radius);
+  border:1px solid var(--border);
 }
-.org-tree ul{padding-top:34px;}
-.org-tree, .org-tree ul, .org-tree li{position:relative;}
+#orgTreeContainer{width:100%;height:100%;}
 
-.org-tree li{
-  display:table-cell;
-  text-align:center;
-  vertical-align:top;
-  padding:34px 20px 0 20px;
-}
+/* ===== Style des nœuds OrgChart.js ===== */
+.orgchart{ background:transparent !important; padding:30px !important; }
 
-/* ligne verticale descendant du parent vers le groupe d'enfants */
-.org-tree ul::before{
-  content:"";
-  position:absolute;
-  top:0; left:50%;
-  border-left:2px solid #c4cdd9;
-  width:0; height:34px;
-}
-
-/* ligne horizontale au-dessus de chaque enfant + montée vers la ligne verticale */
-.org-tree li::before{
-  content:"";
-  position:absolute;
-  top:0; left:0;
-  border-top:2px solid #c4cdd9;
-  width:100%; height:34px;
-}
-.org-tree li:first-child::before{left:50%;width:50%;}
-.org-tree li:last-child::before{width:50%;}
-.org-tree li:only-child{padding-top:0;}
-.org-tree li:only-child::before{display:none;}
-
-/* la racine n'a pas de ligne entrante */
-.org-tree > li{padding-top:0;}
-.org-tree > li::before{display:none;}
-
-.org-card{
-  display:inline-block;
-  border-radius:8px;
-  padding:8px 10px;
-  width:100px;
-  box-shadow:var(--shadow);
+.orgchart .node{
+  width:160px !important;
+  padding:0 !important;
+  border:none !important;
+  background:transparent !important;
+  box-shadow:none !important;
   cursor:pointer;
-  border:1px solid rgba(0,0,0,.06);
-  transition:transform .15s, box-shadow .15s;
-  background:#facc15;
-  color:#1e293b;
-  box-sizing:border-box;
-  word-break:break-word;
 }
-.org-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(15,23,42,.18);}
-
-/* Taille fixe uniforme : tous les nœuds d'un même niveau ont exactement la même largeur */
-.org-card.level-0{background:#7c3aed;color:#fff;width:170px;}
-.org-card.level-1{background:#16a34a;color:#fff;width:150px;}
-.org-card.level-2{background:#fde047;color:#1e293b;width:100px;}
-.org-card.level-3{background:#bae6fd;color:#1e293b;width:100px;}
-
-.org-card .avatar{
-  width:28px;height:28px;border-radius:50%;
-  background:rgba(255,255,255,.35);
-  display:flex;align-items:center;justify-content:center;
-  font-weight:700;margin:0 auto 4px auto;font-size:.74rem;
+.orgchart .node .title{
+  border-radius:10px 10px 0 0 !important;
+  padding:10px 12px 6px !important;
+  font-size:.85rem !important;
+  font-weight:700 !important;
+  border:none !important;
+  transition:filter .15s;
 }
-.org-card.level-2 .avatar, .org-card.level-3 .avatar{background:rgba(0,0,0,.12);}
-.org-card .name{font-weight:600;font-size:.74rem;line-height:1.2;}
-.org-card .role{font-size:.64rem;margin-top:2px;opacity:.9;}
-
-/* glisser-déposer */
-.org-card[draggable="true"]{ cursor:grab; position:relative; }
-.org-card[draggable="true"]::after{
-  content:"✥";
-  position:absolute;
-  top:4px; right:5px;
-  font-size:.65rem;
-  opacity:.45;
-  pointer-events:none;
+.orgchart .node .content{
+  border-radius:0 0 10px 10px !important;
+  padding:5px 12px 10px !important;
+  font-size:.75rem !important;
+  border:none !important;
+  color:#334155 !important;
+  border-top:1px solid rgba(0,0,0,.07) !important;
 }
-.org-card[draggable="true"]:active{ cursor:grabbing; }
-.org-card.dragging{ opacity:.4; transform:scale(.97); }
-.org-card.drop-target{
-  outline:3px dashed #f59e0b;
-  outline-offset:3px;
-  background-color:#fef9c3 !important;
-  transform:scale(1.05);
+.orgchart .node:hover .title{ filter:brightness(1.1); }
+.orgchart .node.oc-selected .title{
+  outline:3px solid #f59e0b;
+  outline-offset:2px;
 }
 
-/* branche affichée verticalement (un poste en dessous de l'autre) */
-.connector-vert{width:2px;height:14px;background:#c4cdd9;margin:0 auto;}
-.connector-vert.small{height:8px;}
-.vertical-stack{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
+/* Lignes de connexion */
+.orgchart .lines .downLine,
+.orgchart .lines .topLine,
+.orgchart .lines .rightLine,
+.orgchart .lines .leftLine{ border-color:#94a3b8 !important; }
 
-/* ===== Contrôles de zoom ===== */
-.zoom-controls{
-  display:flex;align-items:center;gap:8px;
+/* ===== THÈMES ===== */
+/* Bleu (défaut) */
+.orgchart.org-theme-blue .node .title{ background:#1d4ed8 !important; color:#fff !important; }
+.orgchart.org-theme-blue .node .content{ background:#dbeafe !important; }
+
+/* Vert */
+.orgchart.org-theme-green .node .title{ background:#15803d !important; color:#fff !important; }
+.orgchart.org-theme-green .node .content{ background:#dcfce7 !important; }
+
+/* Violet */
+.orgchart.org-theme-purple .node .title{ background:#7c3aed !important; color:#fff !important; }
+.orgchart.org-theme-purple .node .content{ background:#ede9fe !important; }
+
+/* Orange */
+.orgchart.org-theme-orange .node .title{ background:#ea580c !important; color:#fff !important; }
+.orgchart.org-theme-orange .node .content{ background:#ffedd5 !important; }
+
+/* Sombre */
+.orgchart.org-theme-dark .node .title{ background:#1e293b !important; color:#fff !important; }
+.orgchart.org-theme-dark .node .content{ background:#334155 !important; color:#cbd5e1 !important; }
+
+/* ===== Pastilles de thème ===== */
+.theme-dot{
+  width:22px; height:22px; border-radius:50%;
+  border:2px solid transparent; cursor:pointer;
+  transition:transform .1s, border-color .1s;
 }
-.zoom-btn{
-  background:#fff;border:1px solid var(--border);border-radius:6px;
-  width:28px;height:28px;cursor:pointer;font-size:1rem;line-height:1;
-  display:flex;align-items:center;justify-content:center;
-}
-.zoom-btn:hover{background:var(--bg);}
-#zoomSlider{width:110px;accent-color:var(--primary);cursor:pointer;}
-#orgTreeContainer{
-  transition:transform .15s;
-  transform-origin:top center;
+.theme-dot:hover,.theme-dot.active{
+  border-color:#1e293b;
+  transform:scale(1.2);
 }
 
 /* ===== Cards grids (postes / fonctions) ===== */
