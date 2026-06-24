@@ -54,7 +54,7 @@ function switchTab(tab){
 }
 
 function renderAll(){
-  renderOrgChart();
+  try{ renderOrgChart(); } catch(e){ console.error("OrgChart error:", e); }
   renderPostes();
   renderFonctions();
 }
@@ -117,6 +117,11 @@ function buildOrgDatasource(){
 }
 
 function renderOrgChart(){
+  if(typeof $ === 'undefined' || typeof $.fn.orgchart === 'undefined'){
+    document.getElementById('orgTreeContainer').innerHTML =
+      '<p style="padding:20px;color:#dc2626">⚠ La librairie OrgChart.js n\'a pas pu se charger. Vérifiez votre connexion internet et rechargez la page.</p>';
+    return;
+  }
   const $container = $('#orgTreeContainer');
   $container.empty();
 
