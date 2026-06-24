@@ -85,7 +85,7 @@ main{padding:24px;max-width:1200px;margin:0 auto;}
   display:table-cell;
   text-align:center;
   vertical-align:top;
-  padding:34px 8px 0 8px;
+  padding:34px 20px 0 20px;
 }
 
 /* ligne verticale descendant du parent vers le groupe d'enfants */
@@ -118,21 +118,23 @@ main{padding:24px;max-width:1200px;margin:0 auto;}
   display:inline-block;
   border-radius:8px;
   padding:8px 10px;
-  min-width:118px;
-  max-width:150px;
+  width:100px;
   box-shadow:var(--shadow);
   cursor:pointer;
   border:1px solid rgba(0,0,0,.06);
   transition:transform .15s, box-shadow .15s;
   background:#facc15;
   color:#1e293b;
+  box-sizing:border-box;
+  word-break:break-word;
 }
 .org-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(15,23,42,.18);}
 
-.org-card.level-0{background:#7c3aed;color:#fff;min-width:160px;}
-.org-card.level-1{background:#16a34a;color:#fff;}
-.org-card.level-2{background:#fde047;color:#1e293b;}
-.org-card.level-3{background:#bae6fd;color:#1e293b;}
+/* Taille fixe uniforme : tous les nœuds d'un même niveau ont exactement la même largeur */
+.org-card.level-0{background:#7c3aed;color:#fff;width:170px;}
+.org-card.level-1{background:#16a34a;color:#fff;width:150px;}
+.org-card.level-2{background:#fde047;color:#1e293b;width:100px;}
+.org-card.level-3{background:#bae6fd;color:#1e293b;width:100px;}
 
 .org-card .avatar{
   width:28px;height:28px;border-radius:50%;
