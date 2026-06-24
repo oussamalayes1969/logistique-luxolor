@@ -6,6 +6,7 @@
 // navigateur (mode édition), on l'utilise ; sinon celle de data.js
 let DATA = loadData();
 let editMode = false;
+let currentZoom = 100;
 
 function loadData(){
   const saved = localStorage.getItem("logistique_data");
@@ -138,9 +139,29 @@ function renderOrgChart(){
 }
 
 // =========================================================
+// ZOOM
+// =========================================================
+function applyZoom(val){
+  currentZoom = parseInt(val);
+  document.getElementById("orgTreeContainer").style.transform = `scale(${currentZoom/100})`;
+  document.getElementById("orgTreeContainer").style.transformOrigin = "top center";
+  document.getElementById("zoomSlider").value = currentZoom;
+  document.getElementById("zoomLabel").textContent = currentZoom + "%";
+  // ajuste la hauteur du conteneur pour éviter le chevauchement
+  const el = document.getElementById("orgTreeContainer");
+  el.parentElement.style.minHeight = (el.scrollHeight * currentZoom / 100 + 40) + "px";
+}
+
+function changeZoom(delta){
+  if(delta === 0){ applyZoom(100); return; }
+  applyZoom(Math.min(150, Math.max(40, currentZoom + delta)));
+}
+
+// =========================================================
 // GLISSER-DÉPOSER (drag & drop) — actif en mode édition
 // =========================================================
 let draggedId = null;
+let didDrag = false;   // empêche le clic de s'ouvrir après un glisser
 
 function setupDragDrop(){
   const cards = document.querySelectorAll(".org-card[draggable='true']");
@@ -148,28 +169,31 @@ function setupDragDrop(){
   cards.forEach(card => {
     card.addEventListener("dragstart", e => {
       draggedId = card.dataset.empid;
+      didDrag = false;
       card.classList.add("dragging");
       e.dataTransfer.effectAllowed = "move";
+      // petit délai pour que le ghost de drag soit visible
+      setTimeout(() => card.classList.add("dragging"), 0);
     });
 
     card.addEventListener("dragend", () => {
-      document.querySelectorAll(".org-card").forEach(c => {
-        c.classList.remove("dragging", "drop-target");
-      });
+      didDrag = true;
+      document.querySelectorAll(".org-card").forEach(c =>
+        c.classList.remove("dragging", "drop-target"));
       draggedId = null;
+      // remet le flag à false après le cycle d'événements
+      setTimeout(() => { didDrag = false; }, 200);
     });
 
     card.addEventListener("dragover", e => {
       e.preventDefault();
-      if(card.dataset.empid !== draggedId){
+      if(card.dataset.empid !== draggedId)
         card.classList.add("drop-target");
-        e.dataTransfer.dropEffect = "move";
-      }
+      e.dataTransfer.dropEffect = "move";
     });
 
-    card.addEventListener("dragleave", () => {
-      card.classList.remove("drop-target");
-    });
+    card.addEventListener("dragleave", () =>
+      card.classList.remove("drop-target"));
 
     card.addEventListener("drop", e => {
       e.preventDefault();
@@ -177,21 +201,22 @@ function setupDragDrop(){
       const targetId = card.dataset.empid;
       if(!draggedId || draggedId === targetId) return;
 
-      // empêche de créer un cycle (déposer sur son propre subordonné)
       if(isDescendant(targetId, draggedId)){
         alert("Impossible : vous ne pouvez pas rattacher un responsable à l'un de ses propres subordonnés.");
         return;
       }
-
-      const emp = getEmploye(draggedId);
-      emp.managerId = targetId;
+      getEmploye(draggedId).managerId = targetId;
       saveData();
       renderAll();
     });
+
+    // bloque le clic si on vient de faire un glisser
+    card.addEventListener("click", e => {
+      if(didDrag){ e.stopImmediatePropagation(); }
+    }, true);
   });
 }
 
-// Vérifie si targetId est un descendant de ancestorId
 function isDescendant(targetId, ancestorId){
   let current = getEmploye(targetId);
   while(current && current.managerId){

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Organisation Logistique - Luxolor</title>
-<link rel="stylesheet" href="style.css?v=20260623g">
+<link rel="stylesheet" href="style.css?v=20260623h">
 </head>
 <body>
 
@@ -27,7 +27,14 @@
   <!-- ORGANIGRAMME -->
   <section id="organigramme" class="tab-panel active">
     <div class="toolbar">
-      <span style="color:var(--muted);font-size:.85rem;">Cliquez sur une personne pour voir sa fiche détaillée.</span>
+      <div class="zoom-controls">
+        <span style="color:var(--muted);font-size:.82rem;">Zoom :</span>
+        <button class="zoom-btn" onclick="changeZoom(-10)">−</button>
+        <input type="range" id="zoomSlider" min="40" max="150" value="100" oninput="applyZoom(this.value)">
+        <button class="zoom-btn" onclick="changeZoom(10)">+</button>
+        <span id="zoomLabel" style="color:var(--muted);font-size:.78rem;min-width:36px;">100%</span>
+        <button class="zoom-btn" onclick="changeZoom(0)" title="Réinitialiser zoom">⟳</button>
+      </div>
       <div>
         <button id="addEmployeBtn" class="btn" style="display:none;">+ Ajouter un employé</button>
         <button id="exportBtn" class="btn secondary">Exporter data.js</button>
@@ -104,7 +111,7 @@
   </div>
 </div>
 
-<script src="data.js?v=20260623g"></script>
-<script src="app.js?v=20260623g"></script>
+<script src="data.js?v=20260623h"></script>
+<script src="app.js?v=20260623h"></script>
 </body>
 </html>

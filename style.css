@@ -174,6 +174,22 @@ main{padding:24px;max-width:1200px;margin:0 auto;}
   align-items:center;
 }
 
+/* ===== Contrôles de zoom ===== */
+.zoom-controls{
+  display:flex;align-items:center;gap:8px;
+}
+.zoom-btn{
+  background:#fff;border:1px solid var(--border);border-radius:6px;
+  width:28px;height:28px;cursor:pointer;font-size:1rem;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.zoom-btn:hover{background:var(--bg);}
+#zoomSlider{width:110px;accent-color:var(--primary);cursor:pointer;}
+#orgTreeContainer{
+  transition:transform .15s;
+  transform-origin:top center;
+}
+
 /* ===== Cards grids (postes / fonctions) ===== */
 .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
 .search-input{
