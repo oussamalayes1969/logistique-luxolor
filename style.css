@@ -73,22 +73,27 @@ main{padding:16px 24px;max-width:100%;margin:0;}
 #org-wrap{
   width:100%;
   height:calc(100vh - 148px);
-  overflow:hidden;
+  overflow:auto;
   background:var(--bg);
   border-radius:var(--radius);
   border:1px solid var(--border);
+  position:relative;
 }
-#orgTreeContainer{width:100%;height:100%;}
+#orgTreeContainer{
+  width:100%;
+  min-height:100%;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+}
 
 /* ===== Style des nœuds OrgChart.js ===== */
 .orgchart{
   background:transparent !important;
-  padding:40px 20px !important;
-  /* force l'affichage de tous les niveaux */
+  padding:40px 30px !important;
 }
-.orgchart table, .orgchart td, .orgchart ul { display:revert !important; }
 
-/* Cache le bouton ≡ collapse/expand natif */
+/* Cache le bouton ≡ collapse/expand natif — tous niveaux toujours visibles */
 .orgchart .node > a,
 .orgchart .node .oc-node-btn,
 .orgchart .node .edge { display:none !important; }

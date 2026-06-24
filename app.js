@@ -184,15 +184,23 @@ function renderOrgChart(){
     }
   });
 
-  // Force l'affichage de tous les niveaux (évite les nœuds cachés par défaut)
-  setTimeout(function(){
-    $container.find('.orgchart table').show();
-    $container.find('.orgchart ul').show();
-    $container.find('.orgchart td').show();
-  }, 50);
-
   // Applique le thème de couleurs
   $container.find('.orgchart').addClass('org-theme-' + currentTheme);
+
+  // Auto-zoom pour que tout l'organigramme tienne dans l'écran
+  setTimeout(function(){
+    const $oc = $container.find('.orgchart');
+    const wrap = document.getElementById('org-wrap');
+    if(!$oc.length || !wrap) return;
+    const ocW = $oc[0].scrollWidth;
+    const ocH = $oc[0].scrollHeight;
+    const wW  = wrap.clientWidth  - 40;
+    const wH  = wrap.clientHeight - 40;
+    if(ocW > 0 && ocH > 0){
+      const scale = Math.min(wW / ocW, wH / ocH, 1);
+      $oc.css({ transform: 'scale(' + scale + ')', transformOrigin: 'top center' });
+    }
+  }, 200);
 }
 
 function setOrgTheme(theme, btn){
