@@ -14,12 +14,30 @@ function loadData(){
   if(saved){
     try{
       const parsed = JSON.parse(saved);
-      // Migration : merger APP_DATA sans écraser les données existantes
-      ['societes','departements','postes','employes','fonctions'].forEach(key=>{
+      // Migration : merger APP_DATA (sociétés : déduplication par nom)
+      if(!parsed.societes) parsed.societes=[];
+      APP_DATA.societes.forEach(s=>{
+        if(!parsed.societes.find(x=>x.nom===s.nom)) parsed.societes.push(s);
+      });
+      // Supprimer les doublons de sociétés par nom (garde le premier)
+      const nomsSeen={};
+      parsed.societes = parsed.societes.filter(s=>{ if(nomsSeen[s.nom]) return false; nomsSeen[s.nom]=true; return true; });
+
+      ['departements','postes','employes','fonctions'].forEach(key=>{
         if(!parsed[key]) parsed[key]=[];
         APP_DATA[key].forEach(item=>{
           if(!parsed[key].find(x=>x.id===item.id)) parsed[key].push(item);
         });
+      });
+      // Mettre à jour les societeId des départements APP_DATA avec les IDs réels en localStorage
+      APP_DATA.departements.forEach(ad=>{
+        const appSoc = APP_DATA.societes.find(s=>s.id===ad.societeId);
+        if(!appSoc) return;
+        const realSoc = parsed.societes.find(s=>s.nom===appSoc.nom);
+        if(realSoc && realSoc.id !== ad.societeId){
+          const dept = parsed.departements.find(d=>d.id===ad.id);
+          if(dept) dept.societeId = realSoc.id;
+        }
       });
       parsed.departements.forEach(d=>{ if(!d.societeId) d.societeId = "soc_luxolor"; });
       return parsed;
