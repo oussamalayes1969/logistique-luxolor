@@ -217,11 +217,33 @@ main{padding:16px 24px;max-width:100%;margin:0;}
   padding:3px 10px;font-size:.72rem;font-weight:700;white-space:nowrap;
 }
 
-/* ===== Point de performance sur carte organigramme ===== */
-.perf-dot{
-  position:absolute;top:6px;right:6px;
-  width:10px;height:10px;border-radius:50%;
-  border:2px solid rgba(255,255,255,.7);
+/* ===== Indicateurs sur cartes organigramme ===== */
+.ind-dots{
+  position:absolute;top:5px;right:5px;
+  display:flex;gap:3px;
+}
+.ind-dot{
+  width:9px;height:9px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.7);
+  flex-shrink:0;
+}
+
+/* ===== Carte tâche planning ===== */
+.tache-card{
+  background:#f8fafc;border-radius:10px;
+  padding:12px 14px;
+  border-left:4px solid #94a3b8;
+}
+
+/* ===== Résumé charge planning ===== */
+.planning-resume{
+  display:flex;gap:16px;align-items:center;
+  background:#f1f5f9;border-radius:10px;padding:12px 16px;
+  margin-bottom:4px;
+}
+.pr-stat{
+  text-align:center;font-size:.72rem;color:#64748b;
+  min-width:60px;
 }
 
 @media print{
