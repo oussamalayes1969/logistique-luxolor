@@ -314,15 +314,13 @@ function vline(h){ return `<div style="width:2px;height:${h}px;background:#94a3b
 function hline(){ return `<div style="height:2px;background:#94a3b8;position:absolute;top:0;left:50%;right:50%;width:calc(100% - 80px);transform:translateX(-50%);"></div>`; }
 
 function renderOrgChart(){
-  // Détruire l'ancien canvas si on change de département
-  if(window._orgCanvas && window._orgCanvas.deptId !== currentDeptId){
-    window._orgCanvas.destroy();
-    window._orgCanvas = null;
+  if(window._oc && window._oc.deptId !== currentDeptId){
+    window._oc.destroy();
+    window._oc = null;
   }
-  // Créer le canvas pour ce département
   const wrap = document.getElementById('orgTreeContainer');
   wrap.innerHTML = '';
-  window._orgCanvas = new OrgCanvas('orgTreeContainer', currentDeptId, !editMode);
+  window._oc = new OrgCanvas('orgTreeContainer', currentDeptId, !editMode);
 }
 
 function setOrgTheme(theme, btn){
