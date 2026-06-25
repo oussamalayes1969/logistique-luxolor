@@ -141,40 +141,41 @@ const APP_DATA = {
   ],
 
   employes: [
-    { id: "emp_directeur", nom: "À nommer", prenom: "Directeur Logistique", photoUrl: "", posteId: "poste_directeur_logistique", managerId: null, email: "", telephone: "", dateEntree: "", childrenLayout: "horizontal" },
+    { id: "emp_directeur", nom: "À nommer", prenom: "Directeur Logistique", photoUrl: "", posteId: "poste_directeur_logistique", managerId: null, email: "", telephone: "", dateEntree: "" },
 
-    // ===== Branche 1 : Responsable Dépôt Central (subordonnés en vertical) =====
-    { id: "emp_zied", nom: "Graf", prenom: "Zied", photoUrl: "", posteId: "poste_resp_depot_central", managerId: "emp_directeur", email: "depot@luxolor.com", telephone: "98167949", dateEntree: "2018-01-01", childrenLayout: "vertical" },
-    { id: "emp_central_01", nom: "À compléter", prenom: "Employé 1", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_02", nom: "À compléter", prenom: "Employé 2", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_03", nom: "À compléter", prenom: "Employé 3", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_04", nom: "À compléter", prenom: "Employé 4", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_05", nom: "À compléter", prenom: "Employé 5", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_06", nom: "À compléter", prenom: "Employé 6", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_07", nom: "À compléter", prenom: "Employé 7", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_08", nom: "À compléter", prenom: "Employé 8", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_09", nom: "À compléter", prenom: "Employé 9", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_10", nom: "À compléter", prenom: "Employé 10", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_11", nom: "À compléter", prenom: "Employé 11", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_central_12", nom: "À compléter", prenom: "Employé 12", photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    // ===== Branche 1 : Dépôt Central =====
+    { id: "emp_zied", nom: "Graf", prenom: "Zied", photoUrl: "", posteId: "poste_resp_depot_central", managerId: "emp_directeur", email: "depot@luxolor.com", telephone: "98167949", dateEntree: "2018-01-01" },
+    { id: "emp_central_01", nom: "Chouchane",      prenom: "Ahmed",           photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_02", nom: "Oueslati",       prenom: "Nassim",          photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_03", nom: "Karmedi",        prenom: "Zakaria",         photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_04", nom: "Soraani",        prenom: "Chamseddine",     photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_05", nom: "Idoudi",         prenom: "Khaled",          photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_06", nom: "Hamza",          prenom: "Mohamed Amine",   photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_07", nom: "Kerfa",          prenom: "Zied",            photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_08", nom: "Fridhi",         prenom: "Mohamed Ali",     photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_09", nom: "Ben Guergua",    prenom: "Elyes",           photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_10", nom: "Chebbi",         prenom: "Houssem Eddine",  photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_11", nom: "Ben Romdhane",   prenom: "Fares",           photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_central_12", nom: "Beji",           prenom: "Haikel",          photoUrl: "", posteId: "poste_agent_depot_central", managerId: "emp_zied", email: "", telephone: "", dateEntree: "" },
 
-    // ===== Branche 2 : Responsable Dépôt Vente en ligne (subordonnés en vertical) =====
-    { id: "emp_resp_vente", nom: "À nommer", prenom: "Responsable Vente en ligne", photoUrl: "", posteId: "poste_resp_depot_vente_ligne", managerId: "emp_directeur", email: "", telephone: "", dateEntree: "", childrenLayout: "vertical" },
-    { id: "emp_vente_agent_1", nom: "À compléter", prenom: "Agent dépôt 1", photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_vente_agent_2", nom: "À compléter", prenom: "Agent dépôt 2", photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_vente_agent_3", nom: "À compléter", prenom: "Agent dépôt 3", photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_vente_agent_4", nom: "À compléter", prenom: "Agent dépôt 4", photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_vente_agent_5", nom: "À compléter", prenom: "Agent dépôt 5", photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_vente_agent_6", nom: "À compléter", prenom: "Agent dépôt 6", photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
+    // ===== Branche 2 : Dépôt Vente en ligne =====
+    { id: "emp_resp_vente", nom: "À nommer", prenom: "Responsable Vente en ligne", photoUrl: "", posteId: "poste_resp_depot_vente_ligne", managerId: "emp_directeur", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_vente_agent_1", nom: "Chebbi",       prenom: "Mohamed Amine",  photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_vente_agent_2", nom: "Melki",        prenom: "Sami",           photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_vente_agent_3", nom: "Ben Ahmed",    prenom: "Ahmed",          photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_vente_agent_4", nom: "Chebbi",       prenom: "Fares",          photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_vente_agent_5", nom: "Trabelsi",     prenom: "Mohamed Dhia",   photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_vente_agent_6", nom: "Euchi",        prenom: "Firas",          photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_vente_agent_7", nom: "Oueslati",     prenom: "Hdhili",         photoUrl: "", posteId: "poste_agent_depot_vente_ligne", managerId: "emp_resp_vente", email: "", telephone: "", dateEntree: "" },
 
-    // ===== Branche 3 : Responsable Administratif (subordonnés en horizontal) =====
-    { id: "emp_resp_admin", nom: "À nommer", prenom: "Responsable Administratif", photoUrl: "", posteId: "poste_resp_administratif", managerId: "emp_directeur", email: "", telephone: "", dateEntree: "", childrenLayout: "vertical" },
-    { id: "emp_admin_1", nom: "À compléter", prenom: "Administratif 1", photoUrl: "", posteId: "poste_administratif", managerId: "emp_resp_admin", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_admin_2", nom: "À compléter", prenom: "Administratif 2", photoUrl: "", posteId: "poste_administratif", managerId: "emp_resp_admin", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_admin_3", nom: "À compléter", prenom: "Administratif 3", photoUrl: "", posteId: "poste_administratif", managerId: "emp_resp_admin", email: "", telephone: "", dateEntree: "" },
+    // ===== Branche 3 : Administratif =====
+    { id: "emp_resp_admin", nom: "Dhamna", prenom: "Omar", photoUrl: "", posteId: "poste_resp_administratif", managerId: "emp_directeur", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_admin_1", nom: "Laies",   prenom: "Issameddine",   photoUrl: "", posteId: "poste_administratif", managerId: "emp_resp_admin", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_admin_2", nom: "Sassi",   prenom: "Mohamed Amine", photoUrl: "", posteId: "poste_administratif", managerId: "emp_resp_admin", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_admin_3", nom: "Ayari",   prenom: "Mohamed Salah", photoUrl: "", posteId: "poste_administratif", managerId: "emp_resp_admin", email: "", telephone: "", dateEntree: "" },
 
-    // ===== Branche 4 : Gestionnaire de stock (subordonnés en horizontal) =====
-    { id: "emp_houcem", nom: "Charfi", prenom: "Houcem", photoUrl: "", posteId: "poste_gestionnaire_stock", managerId: "emp_directeur", email: "d.logistique@luxolor.com", telephone: "98137257", dateEntree: "2021-01-01", childrenLayout: "vertical" },
+    // ===== Branche 4 : Gestion des stocks =====
+    { id: "emp_houcem", nom: "Charfi", prenom: "Houcem", photoUrl: "", posteId: "poste_gestionnaire_stock", managerId: "emp_directeur", email: "d.logistique@luxolor.com", telephone: "98137257", dateEntree: "2021-01-01" },
     { id: "emp_stock_agent_1", nom: "À compléter", prenom: "Agent stock 1", photoUrl: "", posteId: "poste_agent_gestion_stock", managerId: "emp_houcem", email: "", telephone: "", dateEntree: "" },
     { id: "emp_stock_agent_2", nom: "À compléter", prenom: "Agent stock 2", photoUrl: "", posteId: "poste_agent_gestion_stock", managerId: "emp_houcem", email: "", telephone: "", dateEntree: "" }
   ],
