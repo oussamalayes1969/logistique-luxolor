@@ -138,18 +138,164 @@ main{padding:16px 24px;max-width:100%;margin:0;}
 /* ===== Conteneur organigramme ===== */
 #org-wrap{
   width:100%;
-  height:calc(100vh - 148px);
-  overflow:auto;
+  height:calc(100vh - 210px);
   background:var(--bg);
   border-radius:var(--radius);
   border:1px solid var(--border);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
 }
 #orgTreeContainer{
-  padding:30px 20px 40px;
-  display:flex;
-  justify-content:center;
-  min-width:max-content;
+  flex:1;
+  position:relative;
+  overflow:hidden;
 }
+
+/* ===== OrgCanvas engine ===== */
+.oc-toolbar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.oc-tbtn{ padding:6px 12px !important; font-size:.82rem !important; }
+
+.oc-stage{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  background:
+    radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+  background-size:28px 28px;
+  background-color:#f8fafc;
+  cursor:default;
+}
+
+.oc-inner{
+  position:absolute;
+  top:0; left:0;
+  transform-origin:0 0;
+}
+
+.oc-svg{
+  position:absolute;
+  top:0; left:0;
+  width:4000px; height:3000px;
+  pointer-events:none;
+  overflow:visible;
+}
+.oc-svg path, .oc-svg line{ pointer-events:stroke; }
+
+/* ── Nœud ── */
+.oc-node{
+  position:absolute;
+  border-radius:10px;
+  padding:10px 14px 10px 14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.2);
+  cursor:grab;
+  user-select:none;
+  box-sizing:border-box;
+  min-width:120px; min-height:50px;
+  resize:both;
+  overflow:hidden;
+  transition:box-shadow .12s;
+}
+.oc-node:hover{ box-shadow:0 6px 20px rgba(0,0,0,.3); }
+.oc-node.selected{
+  outline:3px solid #fbbf24;
+  outline-offset:2px;
+  box-shadow:0 6px 24px rgba(251,191,36,.4);
+}
+.oc-node-label{
+  font-weight:700;
+  font-size:.84rem;
+  line-height:1.3;
+  outline:none;
+}
+.oc-node-sub{
+  font-size:.72rem;
+  margin-top:3px;
+  opacity:.82;
+  outline:none;
+}
+.oc-node-del{
+  position:absolute;
+  top:4px; right:6px;
+  font-size:.75rem;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity .1s;
+  line-height:1;
+  background:rgba(0,0,0,.2);
+  border-radius:50%;
+  width:16px; height:16px;
+  display:flex; align-items:center; justify-content:center;
+}
+.oc-node:hover .oc-node-del{ opacity:1; }
+
+/* ── Canvas vide ── */
+.oc-empty{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:#94a3b8;
+  text-align:center;
+  pointer-events:none;
+}
+.oc-empty h3{ margin:.5rem 0; color:#64748b; }
+.oc-empty p{ font-size:.88rem; margin:0 0 4px; }
+.oc-empty button{ pointer-events:all; }
+
+/* ── Palette couleurs ── */
+.oc-color-panel{
+  position:absolute;
+  bottom:100%; left:0;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px;
+  display:flex; flex-wrap:wrap; gap:6px;
+  width:140px;
+  box-shadow:0 4px 16px rgba(0,0,0,.15);
+  z-index:20;
+}
+.oc-color-swatch{
+  width:24px; height:24px; border-radius:50%;
+  cursor:pointer;
+  transition:transform .1s;
+}
+.oc-color-swatch:hover{ transform:scale(1.2); }
+
+/* ── Modal templates ── */
+.oc-template-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(140px,1fr));
+  gap:12px;
+  margin-top:14px;
+}
+.oc-template-card{
+  border:2px solid var(--border);
+  border-radius:10px;
+  padding:14px 12px;
+  cursor:pointer;
+  text-align:center;
+  transition:all .15s;
+}
+.oc-template-card:hover{
+  border-color:var(--primary);
+  background:#eff6ff;
+  transform:translateY(-2px);
+}
+.oc-tpl-icon{ font-size:2rem; }
+.oc-tpl-name{ font-weight:700; font-size:.88rem; margin:6px 0 4px; }
+.oc-tpl-desc{ font-size:.75rem; color:var(--muted); line-height:1.4; }
 
 /* ===== Cartes ===== */
 .ec{

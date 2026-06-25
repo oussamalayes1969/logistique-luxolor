@@ -314,42 +314,15 @@ function vline(h){ return `<div style="width:2px;height:${h}px;background:#94a3b
 function hline(){ return `<div style="height:2px;background:#94a3b8;position:absolute;top:0;left:50%;right:50%;width:calc(100% - 80px);transform:translateX(-50%);"></div>`; }
 
 function renderOrgChart(){
-  const container = document.getElementById('orgTreeContainer');
-  const emps = deptEmployes();
-  const root = emps.find(e => !e.managerId);
-  if(!root){
-    const dept = getDept(currentDeptId);
-    container.innerHTML = `<div style="padding:40px;color:#64748b;text-align:center">
-      <div style="font-size:2rem">${dept?dept.icone:'🏢'}</div>
-      <p>Aucun employé dans le département <strong>${dept?dept.nom:''}</strong>.</p>
-      ${editMode?`<button class="btn" onclick="openEmployeForm(null)">+ Ajouter un employé</button>`:''}
-    </div>`;
-    return;
+  // Détruire l'ancien canvas si on change de département
+  if(window._orgCanvas && window._orgCanvas.deptId !== currentDeptId){
+    window._orgCanvas.destroy();
+    window._orgCanvas = null;
   }
-
-  const branches = emps.filter(e => e.managerId === root.id);
-
-  // Colonnes : une par responsable
-  const cols = branches.map(branch => {
-    const agents = emps.filter(e => e.managerId === branch.id);
-    const agentsHtml = agents.length
-      ? vline(10) + `<div class="agents-col">${agents.map(a=>empCard(a,2)).join('')}</div>`
-      : '';
-    return `<div class="branch-col">
-      ${vline(20)}
-      ${empCard(branch,1)}
-      ${agentsHtml}
-    </div>`;
-  }).join('');
-
-  const branchesHtml = branches.length
-    ? `${vline(24)}<div class="branches-row" style="position:relative">${hline()}${cols}</div>`
-    : '';
-
-  container.innerHTML = `<div class="org-root">
-    ${empCard(root,0)}
-    ${branchesHtml}
-  </div>`;
+  // Créer le canvas pour ce département
+  const wrap = document.getElementById('orgTreeContainer');
+  wrap.innerHTML = '';
+  window._orgCanvas = new OrgCanvas('orgTreeContainer', currentDeptId, !editMode);
 }
 
 function setOrgTheme(theme, btn){
