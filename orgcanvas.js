@@ -625,16 +625,16 @@ class OrgCanvas {
     ];
 
     // Dimensions des nœuds
-    const RH=64, RW=200;
-    const MH=56, MW=160;
-    const AH=50, AW=152;
+    const RH=72, RW=220;
+    const MH=68, MW=180;
+    const AH=62, AW=168;
     const PER_ROW  = 2;    // agents par rangée dans chaque branche
-    const AG_H_GAP = 10;   // espace horizontal entre agents
-    const AG_V_GAP = 8;    // espace vertical entre rangées
-    const BRANCH_GAP = 24; // espace entre branches
+    const AG_H_GAP = 12;   // espace horizontal entre agents
+    const AG_V_GAP = 10;   // espace vertical entre rangées
+    const BRANCH_GAP = 28; // espace entre branches
 
     // Largeur d'une branche = PER_ROW agents côte à côte
-    const branchW = PER_ROW * AW + (PER_ROW - 1) * AG_H_GAP; // 152+10+152 = 314
+    const branchW = PER_ROW * AW + (PER_ROW - 1) * AG_H_GAP; // 168+12+168 = 348
 
     const managers = childMap[root.id] || [];
 
