@@ -1,579 +1,570 @@
 // =========================================================
-// OrgCanvas — Moteur GoJS (production-grade)
-// Drag & Drop natif · Resize · Edition inline · Sidebar
-// Chargé via CDN : go.js (Apache 2.0 — watermark evaluation)
+// OrgCanvas v3 — Canvas interactif sans dépendance
+// Drag · Resize (CSS) · Connexions SVG · Sidebar · Templates
 // =========================================================
 
-// ── Templates de départ ───────────────────────────────────────
 const TEMPLATES_CONFIG = {
-
   standard: {
-    label: '🏢 Standard Pyramidal',
-    nodes: [
-      { key:1,  label:'Directeur Général',       sublabel:'Direction',        color:'#0f172a', textColor:'#ffffff', w:200, h:72 },
-      { key:2,  label:'Directeur Opérations',    sublabel:'Opérations',       color:'#1d4ed8', textColor:'#ffffff', w:185, h:65 },
-      { key:3,  label:'Directeur Commercial',    sublabel:'Commercial',       color:'#1d4ed8', textColor:'#ffffff', w:185, h:65 },
-      { key:4,  label:'Manager Op. Nord',        sublabel:'Zone Nord',        color:'#3b82f6', textColor:'#ffffff', w:170, h:60 },
-      { key:5,  label:'Manager Op. Sud',         sublabel:'Zone Sud',         color:'#3b82f6', textColor:'#ffffff', w:170, h:60 },
-      { key:6,  label:'Manager Commercial A',    sublabel:'Zone A',           color:'#3b82f6', textColor:'#ffffff', w:170, h:60 },
-      { key:7,  label:'Manager Commercial B',    sublabel:'Zone B',           color:'#3b82f6', textColor:'#ffffff', w:170, h:60 },
+    label: 'Standard Pyramidal',
+    nodes:[
+      {id:'n1',x:310,y:20, w:200,h:68,label:'Directeur Général',   sub:'Direction',         bg:'#0f172a',fg:'#fff'},
+      {id:'n2',x:80, y:160,w:180,h:60,label:'Dir. Opérations',     sub:'Opérations',        bg:'#1d4ed8',fg:'#fff'},
+      {id:'n3',x:310,y:160,w:180,h:60,label:'Dir. Commercial',     sub:'Commercial',        bg:'#1d4ed8',fg:'#fff'},
+      {id:'n4',x:540,y:160,w:180,h:60,label:'Dir. RH',             sub:'Ressources Hum.',   bg:'#1d4ed8',fg:'#fff'},
+      {id:'n5',x:20, y:295,w:155,h:55,label:'Manager Op. Nord',    sub:'Zone Nord',         bg:'#bfdbfe',fg:'#1e3a8a'},
+      {id:'n6',x:185,y:295,w:155,h:55,label:'Manager Op. Sud',     sub:'Zone Sud',          bg:'#bfdbfe',fg:'#1e3a8a'},
+      {id:'n7',x:255,y:295,w:155,h:55,label:'Manager Com. A',      sub:'Zone A',            bg:'#bfdbfe',fg:'#1e3a8a'},
+      {id:'n8',x:420,y:295,w:155,h:55,label:'Manager Com. B',      sub:'Zone B',            bg:'#bfdbfe',fg:'#1e3a8a'},
+      {id:'n9',x:530,y:295,w:155,h:55,label:'Chargé Recrutement',  sub:'RH',                bg:'#bfdbfe',fg:'#1e3a8a'},
+      {id:'n10',x:695,y:295,w:155,h:55,label:'Chargé Formation',   sub:'RH',                bg:'#bfdbfe',fg:'#1e3a8a'},
     ],
-    edges: [
-      { from:1, to:2 }, { from:1, to:3 },
-      { from:2, to:4 }, { from:2, to:5 },
-      { from:3, to:6 }, { from:3, to:7 },
+    edges:[
+      {from:'n1',to:'n2'},{from:'n1',to:'n3'},{from:'n1',to:'n4'},
+      {from:'n2',to:'n5'},{from:'n2',to:'n6'},
+      {from:'n3',to:'n7'},{from:'n3',to:'n8'},
+      {from:'n4',to:'n9'},{from:'n4',to:'n10'},
     ]
   },
-
   logistique: {
-    label: '🏭 Logistique Supply Chain',
-    nodes: [
-      { key:1,  label:'Directeur Logistique',      sublabel:'Oussama Layes',        color:'#0f172a', textColor:'#ffffff', w:220, h:72 },
-      { key:2,  label:'Resp. Dépôt Central',       sublabel:'Zied Graf',            color:'#1d4ed8', textColor:'#ffffff', w:190, h:65 },
-      { key:3,  label:'Resp. Vente en ligne',      sublabel:'À nommer',             color:'#15803d', textColor:'#ffffff', w:190, h:65 },
-      { key:4,  label:'Resp. Administratif',       sublabel:'Omar Dhamna',          color:'#7c3aed', textColor:'#ffffff', w:190, h:65 },
-      { key:5,  label:'Gestionnaire Stock',        sublabel:'Houcem Charfi',        color:'#c2410c', textColor:'#ffffff', w:190, h:65 },
-      { key:6,  label:'Agents Dépôt (×12)',        sublabel:'Dépôt Central',        color:'#bfdbfe', textColor:'#1e3a8a', w:175, h:55 },
-      { key:7,  label:'Préparateurs Vente (×7)',   sublabel:'Vente en ligne',       color:'#bbf7d0', textColor:'#14532d', w:175, h:55 },
-      { key:8,  label:'Administratifs (×3)',       sublabel:'Administratif',        color:'#e9d5ff', textColor:'#4c1d95', w:175, h:55 },
-      { key:9,  label:'Agents Stock (×2)',         sublabel:'Gestion des stocks',   color:'#fed7aa', textColor:'#7c2d12', w:175, h:55 },
+    label: 'Logistique Luxolor',
+    nodes:[
+      {id:'l1',x:285,y:20, w:215,h:70,label:'Directeur Logistique',  sub:'Oussama Layes',       bg:'#0f172a',fg:'#fff'},
+      {id:'l2',x:15, y:165,w:185,h:62,label:'Resp. Dépôt Central',   sub:'Zied Graf',           bg:'#1d4ed8',fg:'#fff'},
+      {id:'l3',x:215,y:165,w:185,h:62,label:'Resp. Vente en ligne',  sub:'À nommer',            bg:'#15803d',fg:'#fff'},
+      {id:'l4',x:415,y:165,w:185,h:62,label:'Resp. Administratif',   sub:'Omar Dhamna',         bg:'#7c3aed',fg:'#fff'},
+      {id:'l5',x:615,y:165,w:185,h:62,label:'Gestionnaire Stock',    sub:'Houcem Charfi',       bg:'#c2410c',fg:'#fff'},
+      {id:'l6',x:15, y:300,w:175,h:52,label:'Agents Dépôt ×12',     sub:'Dépôt Central',       bg:'#bfdbfe',fg:'#1e3a8a'},
+      {id:'l7',x:215,y:300,w:175,h:52,label:'Agents Vente ×7',      sub:'Vente en ligne',      bg:'#bbf7d0',fg:'#14532d'},
+      {id:'l8',x:415,y:300,w:175,h:52,label:'Administratifs ×3',    sub:'Administratif',       bg:'#e9d5ff',fg:'#4c1d95'},
+      {id:'l9',x:615,y:300,w:175,h:52,label:'Agents Stock ×2',      sub:'Gestion des stocks',  bg:'#fed7aa',fg:'#7c2d12'},
     ],
-    edges: [
-      { from:1, to:2 }, { from:1, to:3 }, { from:1, to:4 }, { from:1, to:5 },
-      { from:2, to:6 }, { from:3, to:7 }, { from:4, to:8 }, { from:5, to:9 },
+    edges:[
+      {from:'l1',to:'l2'},{from:'l1',to:'l3'},{from:'l1',to:'l4'},{from:'l1',to:'l5'},
+      {from:'l2',to:'l6'},{from:'l3',to:'l7'},{from:'l4',to:'l8'},{from:'l5',to:'l9'},
     ]
   },
-
   commercial: {
-    label: '💼 Commercial & Ventes',
-    nodes: [
-      { key:1, label:'Directeur Commercial',   sublabel:'Direction',      color:'#c2410c', textColor:'#ffffff', w:200, h:72 },
-      { key:2, label:'Chef des Ventes Nord',   sublabel:'Zone Nord',      color:'#ea580c', textColor:'#ffffff', w:185, h:65 },
-      { key:3, label:'Chef des Ventes Sud',    sublabel:'Zone Sud',       color:'#ea580c', textColor:'#ffffff', w:185, h:65 },
-      { key:4, label:'Responsable ADV',        sublabel:'Admin. Ventes',  color:'#ea580c', textColor:'#ffffff', w:185, h:65 },
-      { key:5, label:'Commercial 1',           sublabel:'Zone Nord',      color:'#fed7aa', textColor:'#7c2d12', w:160, h:55 },
-      { key:6, label:'Commercial 2',           sublabel:'Zone Nord',      color:'#fed7aa', textColor:'#7c2d12', w:160, h:55 },
-      { key:7, label:'Commercial 3',           sublabel:'Zone Sud',       color:'#fed7aa', textColor:'#7c2d12', w:160, h:55 },
-      { key:8, label:'Commercial 4',           sublabel:'Zone Sud',       color:'#fed7aa', textColor:'#7c2d12', w:160, h:55 },
-      { key:9, label:'Assistante ADV',         sublabel:'Admin. Ventes',  color:'#fed7aa', textColor:'#7c2d12', w:160, h:55 },
+    label: 'Commercial & Ventes',
+    nodes:[
+      {id:'c1',x:270,y:20, w:200,h:68,label:'Directeur Commercial', sub:'Direction',     bg:'#c2410c',fg:'#fff'},
+      {id:'c2',x:80, y:160,w:175,h:60,label:'Chef Ventes Nord',     sub:'Zone Nord',     bg:'#ea580c',fg:'#fff'},
+      {id:'c3',x:390,y:160,w:175,h:60,label:'Chef Ventes Sud',      sub:'Zone Sud',      bg:'#ea580c',fg:'#fff'},
+      {id:'c4',x:665,y:160,w:175,h:60,label:'Responsable ADV',      sub:'Admin. Ventes', bg:'#ea580c',fg:'#fff'},
+      {id:'c5',x:20, y:290,w:155,h:52,label:'Commercial 1',         sub:'Zone Nord',     bg:'#fed7aa',fg:'#7c2d12'},
+      {id:'c6',x:185,y:290,w:155,h:52,label:'Commercial 2',         sub:'Zone Nord',     bg:'#fed7aa',fg:'#7c2d12'},
+      {id:'c7',x:335,y:290,w:155,h:52,label:'Commercial 3',         sub:'Zone Sud',      bg:'#fed7aa',fg:'#7c2d12'},
+      {id:'c8',x:500,y:290,w:155,h:52,label:'Commercial 4',         sub:'Zone Sud',      bg:'#fed7aa',fg:'#7c2d12'},
+      {id:'c9',x:665,y:290,w:155,h:52,label:'Assistante ADV',       sub:'',              bg:'#fed7aa',fg:'#7c2d12'},
     ],
-    edges: [
-      { from:1, to:2 }, { from:1, to:3 }, { from:1, to:4 },
-      { from:2, to:5 }, { from:2, to:6 },
-      { from:3, to:7 }, { from:3, to:8 },
-      { from:4, to:9 },
+    edges:[
+      {from:'c1',to:'c2'},{from:'c1',to:'c3'},{from:'c1',to:'c4'},
+      {from:'c2',to:'c5'},{from:'c2',to:'c6'},
+      {from:'c3',to:'c7'},{from:'c3',to:'c8'},
+      {from:'c4',to:'c9'},
     ]
   },
-
   rh: {
-    label: '👥 Ressources Humaines',
-    nodes: [
-      { key:1, label:'DRH',                  sublabel:'Direction RH',       color:'#7c3aed', textColor:'#ffffff', w:190, h:70 },
-      { key:2, label:'Resp. Recrutement',    sublabel:'Recrutement',        color:'#8b5cf6', textColor:'#ffffff', w:175, h:62 },
-      { key:3, label:'Resp. Formation',      sublabel:'Formation',          color:'#8b5cf6', textColor:'#ffffff', w:175, h:62 },
-      { key:4, label:'Resp. Paie & Admin',   sublabel:'Paie & Admin.',      color:'#8b5cf6', textColor:'#ffffff', w:175, h:62 },
-      { key:5, label:'Chargé Recrutement',   sublabel:'',                   color:'#e9d5ff', textColor:'#4c1d95', w:160, h:52 },
-      { key:6, label:'Chargé Formation',     sublabel:'',                   color:'#e9d5ff', textColor:'#4c1d95', w:160, h:52 },
-      { key:7, label:'Gestionnaire Paie',    sublabel:'',                   color:'#e9d5ff', textColor:'#4c1d95', w:160, h:52 },
+    label: 'Ressources Humaines',
+    nodes:[
+      {id:'r1',x:265,y:20, w:190,h:68,label:'DRH',                 sub:'Direction RH',   bg:'#7c3aed',fg:'#fff'},
+      {id:'r2',x:50, y:155,w:175,h:60,label:'Resp. Recrutement',   sub:'Recrutement',    bg:'#8b5cf6',fg:'#fff'},
+      {id:'r3',x:265,y:155,w:175,h:60,label:'Resp. Formation',     sub:'Formation',      bg:'#8b5cf6',fg:'#fff'},
+      {id:'r4',x:480,y:155,w:175,h:60,label:'Resp. Paie & Admin',  sub:'Paie',           bg:'#8b5cf6',fg:'#fff'},
+      {id:'r5',x:50, y:285,w:160,h:52,label:'Chargé Recrutement',  sub:'',               bg:'#e9d5ff',fg:'#4c1d95'},
+      {id:'r6',x:265,y:285,w:160,h:52,label:'Chargé Formation',    sub:'',               bg:'#e9d5ff',fg:'#4c1d95'},
+      {id:'r7',x:480,y:285,w:160,h:52,label:'Gestionnaire Paie',   sub:'',               bg:'#e9d5ff',fg:'#4c1d95'},
     ],
-    edges: [
-      { from:1, to:2 }, { from:1, to:3 }, { from:1, to:4 },
-      { from:2, to:5 }, { from:3, to:6 }, { from:4, to:7 },
+    edges:[
+      {from:'r1',to:'r2'},{from:'r1',to:'r3'},{from:'r1',to:'r4'},
+      {from:'r2',to:'r5'},{from:'r3',to:'r6'},{from:'r4',to:'r7'},
     ]
   }
 };
 
-// ── Classe principale ─────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 class OrgCanvas {
 
   constructor(containerId, deptId, readOnly) {
-    this.containerId = containerId;
-    this.deptId      = deptId;
-    this.readOnly    = readOnly || false;
-    this.diagram     = null;
-    this._sidebarNode = null;
+    this.p        = containerId;      // préfixe id
+    this.deptId   = deptId;
+    this.readOnly = !!readOnly;
+    this.nodes    = [];
+    this.edges    = [];
+    this.sel      = null;             // id nœud sélectionné
+    this._drag    = null;
+    this._conn    = null;             // connexion en cours
+    this._pan     = null;
+    this.tx = 40; this.ty = 40; this.zoom = 1;
 
-    if (typeof go === 'undefined') {
-      this._showGoJSError(); return;
-    }
-    this._buildDOM();
-    this._initGoJS();
-    this._loadFromData();
+    this._onMv  = e => this._mouseMove(e);
+    this._onUp  = e => this._mouseUp(e);
+    window.addEventListener('mousemove', this._onMv);
+    window.addEventListener('mouseup',   this._onUp);
+
+    this._inject();
+    this._loadData();
   }
 
-  // ── Erreur si GoJS non chargé ─────────────────────────────
-  _showGoJSError() {
-    const wrap = document.getElementById(this.containerId);
-    if (wrap) wrap.innerHTML = `
-      <div style="padding:40px;text-align:center;color:#dc2626">
-        <h3>⚠ GoJS non chargé</h3>
-        <p>Vérifiez votre connexion internet — GoJS se charge via CDN.</p>
-      </div>`;
-  }
-
-  // ── Construction du DOM ───────────────────────────────────
-  _buildDOM() {
-    const wrap = document.getElementById(this.containerId);
+  // ── DOM ──────────────────────────────────────────────────
+  _inject() {
+    const wrap = document.getElementById(this.p);
     if (!wrap) return;
-
-    const ro = this.readOnly;
-    const p  = this.containerId;
+    const p = this.p, ro = this.readOnly;
 
     wrap.innerHTML = `
-      <!-- Toolbar -->
-      <div class="oc-toolbar" style="${ro ? 'display:none' : ''}">
-        <button class="btn oc-tbtn" id="${p}_btn_add">＋ Nouveau rôle</button>
-        <button class="btn oc-tbtn secondary" id="${p}_btn_tpl">📋 Modèle</button>
+      <div id="${p}T" class="oc-toolbar" style="${ro?'display:none':''}">
+        <button class="btn oc-tbtn" id="${p}BAdd">＋ Nouveau rôle</button>
+        <button class="btn oc-tbtn secondary" id="${p}BTpl">📋 Modèle</button>
         <span style="flex:1"></span>
-        <button class="btn oc-tbtn secondary" id="${p}_btn_fit">⊙ Recadrer</button>
-        <button class="btn oc-tbtn secondary" id="${p}_btn_undo">↩ Annuler</button>
-        <button class="btn oc-tbtn secondary" id="${p}_btn_del">🗑 Supprimer nœud</button>
-        <span class="oc-hint">Drag bord bleu = connecter · Dbl-clic = éditer texte · Poignée = resize</span>
+        <button class="btn oc-tbtn secondary" id="${p}BFit">⊙ Recadrer</button>
+        <button class="btn oc-tbtn secondary" id="${p}BClr">🗑 Vider</button>
+        <span class="oc-hint">Maj+clic = relier deux nœuds · Dbl-clic = éditer texte · Coin bas-droite = resize</span>
       </div>
-
-      <!-- Zone principale : canvas + sidebar -->
       <div class="oc-main">
-
-        <!-- Canvas GoJS -->
-        <div id="${p}_canvas" class="oc-gojs-canvas"></div>
-
-        <!-- Canvas vide (masqué si données) -->
-        <div class="oc-empty" id="${p}_empty">
-          <div style="font-size:3rem">🏢</div>
-          <h3>Organigramme vide</h3>
-          <p>Créez un premier rôle ou choisissez un modèle de départ.</p>
-          ${ro ? '' : `
-            <div style="display:flex;gap:12px;margin-top:16px">
-              <button class="btn" id="${p}_empty_add">＋ Créer le premier rôle</button>
-              <button class="btn secondary" id="${p}_empty_tpl">📋 Choisir un modèle</button>
+        <div class="oc-stage" id="${p}S">
+          <div class="oc-inner" id="${p}I">
+            <svg id="${p}V" class="oc-svg" overflow="visible"
+              xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="${p}Arr" markerWidth="10" markerHeight="7"
+                  refX="9" refY="3.5" orient="auto">
+                  <polygon points="0 0,10 3.5,0 7" fill="#94a3b8"/>
+                </marker>
+              </defs>
+              <g id="${p}G"></g>
+            </svg>
+          </div>
+          <div class="oc-empty" id="${p}E">
+            <div style="font-size:3rem">🏢</div>
+            <h3>Organigramme vide</h3>
+            <p>Créez votre premier rôle ou choisissez un modèle.</p>
+            ${ro ? '' : `<div style="display:flex;gap:12px;margin-top:14px">
+              <button class="btn" id="${p}EAdd">＋ Créer le premier rôle</button>
+              <button class="btn secondary" id="${p}ETpl">📋 Choisir un modèle</button>
             </div>`}
+          </div>
         </div>
-
-        <!-- Sidebar propriétés (masquée par défaut) -->
-        <div class="oc-sidebar" id="${p}_sidebar" style="display:none">
+        <div class="oc-sidebar" id="${p}SB" style="display:none">
           <div class="oc-sb-header">
-            <span>✏ Propriétés</span>
-            <button class="oc-sb-close" id="${p}_sb_close">✕</button>
+            <b>✏ Propriétés du nœud</b>
+            <button id="${p}SBX" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:#64748b">✕</button>
           </div>
           <div class="oc-sb-body">
             <label class="oc-sb-label">Nom / Rôle</label>
-            <input class="oc-sb-input" id="${p}_sb_label" placeholder="Ex: Directeur Général">
-            <label class="oc-sb-label">Sous-titre / Service</label>
-            <input class="oc-sb-input" id="${p}_sb_sub" placeholder="Ex: Direction Générale">
+            <input class="oc-sb-input" id="${p}SBL" placeholder="Ex: Directeur Général">
+            <label class="oc-sb-label">Sous-titre</label>
+            <input class="oc-sb-input" id="${p}SBS" placeholder="Ex: Direction">
             <label class="oc-sb-label">Couleur de fond</label>
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-              <input type="color" id="${p}_sb_color" style="width:44px;height:36px;border-radius:6px;border:1px solid #e2e8f0;cursor:pointer">
-              <div class="oc-color-presets" id="${p}_sb_presets"></div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+              <input type="color" id="${p}SBC" style="width:40px;height:36px;border-radius:6px;border:1px solid #e2e8f0;cursor:pointer">
+              ${['#0f172a','#1d4ed8','#15803d','#7c3aed','#c2410c','#0369a1','#be185d','#475569','#bfdbfe','#bbf7d0'].map(c =>
+                `<div style="width:22px;height:22px;border-radius:50%;background:${c};cursor:pointer;border:2px solid rgba(0,0,0,.1)"
+                  onclick="document.getElementById('${p}SBC').value='${c}'"></div>`
+              ).join('')}
             </div>
-            <label class="oc-sb-label">Couleur du texte</label>
-            <div style="display:flex;gap:8px;margin-bottom:14px">
-              <button class="oc-txt-btn active" id="${p}_sb_txtw" data-tc="#ffffff">Blanc</button>
-              <button class="oc-txt-btn"        id="${p}_sb_txtd" data-tc="#1e293b">Sombre</button>
+            <label class="oc-sb-label">Texte</label>
+            <div style="display:flex;gap:6px;margin-bottom:14px">
+              <button id="${p}SBTW" style="flex:1;padding:6px;border-radius:6px;border:1px solid #e2e8f0;background:#1d4ed8;color:#fff;cursor:pointer;font-weight:600">Blanc</button>
+              <button id="${p}SBTD" style="flex:1;padding:6px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#1e293b;cursor:pointer">Sombre</button>
             </div>
-            <button class="btn" id="${p}_sb_apply" style="width:100%;margin-bottom:8px">✓ Appliquer</button>
-            <button class="btn danger" id="${p}_sb_del" style="width:100%">🗑 Supprimer ce nœud</button>
+            <button class="btn" id="${p}SBOk" style="width:100%;margin-bottom:8px">✓ Appliquer</button>
+            <button class="btn danger" id="${p}SBDel" style="width:100%">🗑 Supprimer</button>
           </div>
         </div>
       </div>`;
 
-    // Palette de couleurs prédéfinies
-    const presets = ['#0f172a','#1d4ed8','#15803d','#7c3aed','#c2410c',
-                     '#0369a1','#be185d','#a16207','#334155','#374151'];
-    const presetsEl = document.getElementById(`${p}_sb_presets`);
-    if (presetsEl) {
-      presetsEl.innerHTML = presets.map(c =>
-        `<div class="oc-color-swatch" style="background:${c}"
-          onclick="document.getElementById('${p}_sb_color').value='${c}'"></div>`
-      ).join('');
-    }
-  }
+    this.stage  = document.getElementById(`${p}S`);
+    this.inner  = document.getElementById(`${p}I`);
+    this.svg    = document.getElementById(`${p}V`);
+    this.edgesG = document.getElementById(`${p}G`);
 
-  // ── Initialisation GoJS ───────────────────────────────────
-  _initGoJS() {
-    const $ = go.GraphObject.make;
-    const p = this.containerId;
-    const ro = this.readOnly;
-
-    // ── Diagramme ──
-    this.diagram = $(go.Diagram, `${p}_canvas`, {
-      'undoManager.isEnabled': true,
-      isReadOnly: ro,
-      allowDelete: !ro,
-      allowCopy: !ro,
-      // Layout automatique si demandé
-      layout: $(go.TreeLayout, {
-        angle: 90,
-        layerSpacing: 55,
-        nodeSpacing: 18,
-        isInitial: false,   // Ne pas relayout à chaque modèle change
-        isOngoing: false
-      }),
-      // Sauvegarder après chaque transaction
-      'ModelChanged': e => { if (e.isTransactionFinished) this._save(); },
-      // Sidebar lors de sélection
-      'ChangedSelection': () => this._onSelectionChanged()
-    });
-
-    // ── Template des nœuds ──
-    this.diagram.nodeTemplate = $(go.Node, 'Spot',
-      {
-        locationSpot: go.Spot.Center,
-        resizable: !ro,
-        resizeObjectName: 'BODY',
-        selectionAdornmentTemplate: $(go.Adornment, 'Auto',
-          $(go.Shape, 'RoundedRectangle',
-            { fill: null, stroke: '#fbbf24', strokeWidth: 3, parameter1: 10 }
-          ),
-          $(go.Placeholder)
-        ),
-        // Port de connexion haut (entrée) et bas (sortie)
-        fromSpot: go.Spot.Bottom,
-        toSpot: go.Spot.Top,
-        fromLinkable: !ro,
-        toLinkable: !ro,
-        cursor: 'move',
-        toolTip: $(go.Adornment, 'Auto',
-          $(go.Shape, { fill: '#1e293b' }),
-          $(go.TextBlock, { stroke: '#fff', margin: 6, font: '12px Segoe UI' },
-            new go.Binding('text', 'label')
-          )
-        )
-      },
-      // Corps du nœud
-      $(go.Panel, 'Auto',
-        {
-          name: 'BODY',
-          minSize: new go.Size(140, 55)
-        },
-        new go.Binding('desiredSize', 'size', go.Size.parse).makeTwoWay(go.Size.stringify),
-        $(go.Shape, 'RoundedRectangle',
-          {
-            strokeWidth: 0,
-            fill: '#1d4ed8',
-            parameter1: 10,
-            shadowVisible: true,
-            shadowColor: 'rgba(0,0,0,0.18)',
-            shadowOffset: new go.Point(0, 4),
-            shadowBlur: 12
-          },
-          new go.Binding('fill', 'color')
-        ),
-        $(go.Panel, 'Vertical',
-          { padding: new go.Margin(10, 16), alignment: go.Spot.Center },
-          // Ligne 1 : nom / rôle
-          $(go.TextBlock,
-            {
-              name: 'LABEL',
-              font: 'bold 13px "Segoe UI", Arial, sans-serif',
-              stroke: '#ffffff',
-              editable: !ro,
-              isMultiline: false,
-              overflow: go.TextBlock.OverflowEllipsis,
-              textAlign: 'center',
-              maxSize: new go.Size(220, NaN)
-            },
-            new go.Binding('text', 'label').makeTwoWay(),
-            new go.Binding('stroke', 'textColor').makeTwoWay()
-          ),
-          // Ligne 2 : sous-titre
-          $(go.TextBlock,
-            {
-              font: '11px "Segoe UI", Arial, sans-serif',
-              stroke: 'rgba(255,255,255,0.78)',
-              editable: !ro,
-              isMultiline: false,
-              overflow: go.TextBlock.OverflowEllipsis,
-              textAlign: 'center',
-              margin: new go.Margin(3, 0, 0, 0),
-              maxSize: new go.Size(220, NaN)
-            },
-            new go.Binding('text', 'sublabel').makeTwoWay(),
-            new go.Binding('stroke', 'textColor',
-              tc => tc === '#1e293b' ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.75)'
-            )
-          )
-        )
-      ),
-      // Port visible en bas (pour glisser une connexion)
-      $(go.Shape, 'Circle',
-        {
-          width: 14, height: 14,
-          fill: '#fff', stroke: '#3b82f6', strokeWidth: 2,
-          portId: 'out',
-          fromLinkable: !ro,
-          cursor: 'crosshair',
-          alignment: go.Spot.Bottom,
-          alignmentFocus: go.Spot.Top
-        }
-      )
-    );
-
-    // ── Template des liens ──
-    this.diagram.linkTemplate = $(go.Link,
-      {
-        routing: go.Link.Orthogonal,
-        corner: 8,
-        curve: go.Link.JumpOver,
-        relinkableFrom: !ro,
-        relinkableTo: !ro,
-        reshapable: !ro,
-        selectionAdornmentTemplate: $(go.Adornment,
-          $(go.Shape, { isPanelMain: true, stroke: '#3b82f6', strokeWidth: 3 })
-        )
-      },
-      $(go.Shape, { strokeWidth: 2, stroke: '#94a3b8' }),
-      $(go.Shape, { toArrow: 'OpenTriangle', stroke: '#94a3b8', strokeWidth: 2 })
-    );
-
-    // ── Lier les boutons ──
+    // ── Bind toolbar ──
     if (!ro) {
-      document.getElementById(`${p}_btn_add`)?.addEventListener('click',  () => this.addNode());
-      document.getElementById(`${p}_btn_tpl`)?.addEventListener('click',  () => this.openTemplates());
-      document.getElementById(`${p}_btn_fit`)?.addEventListener('click',  () => this.fitView());
-      document.getElementById(`${p}_btn_undo`)?.addEventListener('click', () => this.diagram.commandHandler.undo());
-      document.getElementById(`${p}_btn_del`)?.addEventListener('click',  () => this._deleteSelected());
-      document.getElementById(`${p}_empty_add`)?.addEventListener('click',() => this.addNode());
-      document.getElementById(`${p}_empty_tpl`)?.addEventListener('click',() => this.openTemplates());
-      this._bindSidebar();
+      this._on(`${p}BAdd`, 'click', () => this.addNode());
+      this._on(`${p}BTpl`, 'click', () => this.openTemplates());
+      this._on(`${p}BFit`, 'click', () => this.fitView());
+      this._on(`${p}BClr`, 'click', () => this.clearAll());
+      this._on(`${p}EAdd`, 'click', () => this.addNode());
+      this._on(`${p}ETpl`, 'click', () => this.openTemplates());
+      // Sidebar
+      this._on(`${p}SBX`,  'click', () => this._closeSB());
+      this._on(`${p}SBOk`, 'click', () => this._applySB());
+      this._on(`${p}SBDel`,'click', () => this._deleteSel());
+      this._on(`${p}SBTW`, 'click', () => this._setTC('SBTW','#ffffff'));
+      this._on(`${p}SBTD`, 'click', () => this._setTC('SBTD','#1e293b'));
     }
+
+    // ── Stage events ──
+    this.stage.addEventListener('mousedown', e => {
+      if (e.target === this.stage || e.target === this.inner || e.target === this.svg) {
+        if (e.altKey || e.button === 1) {
+          e.preventDefault();
+          this._pan = {sx:e.clientX, sy:e.clientY, tx:this.tx, ty:this.ty};
+        } else {
+          this._desel();
+        }
+      }
+    });
+    this.stage.addEventListener('wheel', e => {
+      e.preventDefault();
+      this.zoom = Math.min(2.5, Math.max(0.2, this.zoom * (e.deltaY<0?1.1:0.9)));
+      this._tf();
+    }, {passive:false});
   }
 
-  // ── Sidebar : bindings ────────────────────────────────────
-  _bindSidebar() {
-    const p  = this.containerId;
-    const sb = id => document.getElementById(`${p}_${id}`);
-
-    // Bouton Appliquer
-    sb('sb_apply')?.addEventListener('click', () => {
-      const node = this.diagram.selection.first();
-      if (!node || !(node instanceof go.Node)) return;
-      const tc = sb('sb_txtw').classList.contains('active') ? '#ffffff' : '#1e293b';
-      this.diagram.model.startTransaction('edit node');
-      this.diagram.model.setDataProperty(node.data, 'label',     sb('sb_label').value.trim());
-      this.diagram.model.setDataProperty(node.data, 'sublabel',  sb('sb_sub').value.trim());
-      this.diagram.model.setDataProperty(node.data, 'color',     sb('sb_color').value);
-      this.diagram.model.setDataProperty(node.data, 'textColor', tc);
-      this.diagram.model.commitTransaction('edit node');
-    });
-
-    // Bouton Supprimer
-    sb('sb_del')?.addEventListener('click', () => {
-      if (!confirm('Supprimer ce nœud et ses connexions ?')) return;
-      this._deleteSelected();
-      sb('sidebar').style.display = 'none';
-    });
-
-    // Fermer sidebar
-    sb('sb_close')?.addEventListener('click', () => {
-      sb('sidebar').style.display = 'none';
-      this.diagram.clearSelection();
-    });
-
-    // Boutons texte blanc / sombre
-    [sb('sb_txtw'), sb('sb_txtd')].forEach(btn => {
-      btn?.addEventListener('click', () => {
-        sb('sb_txtw').classList.toggle('active', btn === sb('sb_txtw'));
-        sb('sb_txtd').classList.toggle('active', btn === sb('sb_txtd'));
-      });
-    });
+  _on(id, ev, fn) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener(ev, fn);
   }
 
-  // ── Mise à jour de la sidebar lors d'une sélection ────────
-  _onSelectionChanged() {
-    const p  = this.containerId;
-    const sb = id => document.getElementById(`${p}_${id}`);
-    const node = this.diagram.selection.first();
-
-    if (node instanceof go.Node) {
-      sb('sidebar').style.display = 'flex';
-      sb('sb_label').value  = node.data.label    || '';
-      sb('sb_sub').value    = node.data.sublabel  || '';
-      sb('sb_color').value  = node.data.color     || '#1d4ed8';
-      const isDark = (node.data.textColor || '#ffffff') === '#1e293b';
-      sb('sb_txtw').classList.toggle('active', !isDark);
-      sb('sb_txtd').classList.toggle('active',  isDark);
-    } else {
-      sb('sidebar').style.display = 'none';
-    }
-  }
-
-  // ── Supprimer le nœud sélectionné ────────────────────────
-  _deleteSelected() {
-    const node = this.diagram.selection.first();
-    if (node instanceof go.Node) {
-      this.diagram.startTransaction('delete');
-      this.diagram.remove(node);
-      // Supprimer les liens associés
-      node.findLinksConnected().each(l => this.diagram.remove(l));
-      this.diagram.commitTransaction('delete');
-      this._checkEmpty();
-    }
-  }
-
-  // ── Charger les données sauvegardées ─────────────────────
-  _loadFromData() {
+  // ── Données ──────────────────────────────────────────────
+  _loadData() {
     if (!DATA.orgCharts) DATA.orgCharts = {};
-    const saved = DATA.orgCharts[this.deptId];
-
-    if (saved && saved.nodes && saved.nodes.length > 0) {
-      this._setModel(saved.nodes, saved.edges || []);
+    const s = DATA.orgCharts[this.deptId];
+    if (s && s.nodes && s.nodes.length) {
+      this.nodes = JSON.parse(JSON.stringify(s.nodes));
+      this.edges = JSON.parse(JSON.stringify(s.edges || []));
+      this._render(); this._hideEmpty();
     } else {
-      this._setModel([], []);
       this._showEmpty();
     }
+    this._tf();
   }
 
-  // ── Appliquer un modèle GoJS ──────────────────────────────
-  _setModel(nodes, edges) {
-    if (!this.diagram) return;
-    const $ = go.GraphObject.make;
-
-    this.diagram.model = $(go.GraphLinksModel, {
-      nodeKeyProperty:   'key',
-      linkFromKeyProperty: 'from',
-      linkToKeyProperty:   'to',
-      nodeDataArray:  nodes.map(n => ({
-        key:       n.key  || n.id || Math.floor(Math.random()*900000)+100000,
-        label:     n.label     || 'Nouveau',
-        sublabel:  n.sublabel  || '',
-        color:     n.color     || '#1d4ed8',
-        textColor: n.textColor || '#ffffff',
-        size:      n.size      || `${n.w||180} ${n.h||65}`
-      })),
-      linkDataArray: edges.map(e => ({
-        from: e.from,
-        to:   e.to
-      }))
-    });
-
-    document.getElementById(`${this.containerId}_empty`)?.style &&
-      (document.getElementById(`${this.containerId}_empty`).style.display = 'none');
-
-    // Recadrer après chargement
-    setTimeout(() => this.fitView(), 120);
-  }
-
-  // ── Canvas vide ───────────────────────────────────────────
-  _showEmpty() {
-    const el = document.getElementById(`${this.containerId}_empty`);
-    if (el) el.style.display = 'flex';
-  }
-
-  _hideEmpty() {
-    const el = document.getElementById(`${this.containerId}_empty`);
-    if (el) el.style.display = 'none';
-  }
-
-  _checkEmpty() {
-    if (this.diagram && this.diagram.model.nodeDataArray.length === 0) {
-      this._showEmpty();
-    }
-  }
-
-  // ── Sauvegarder dans DATA ────────────────────────────────
   _save() {
-    if (!this.diagram || !DATA) return;
     if (!DATA.orgCharts) DATA.orgCharts = {};
-
-    const model = this.diagram.model;
     DATA.orgCharts[this.deptId] = {
-      nodes: model.nodeDataArray.map(n => ({ ...n })),
-      edges: model.linkDataArray.map(e => ({ from: e.from, to: e.to }))
+      nodes: this.nodes,
+      edges: this.edges
     };
     if (typeof saveData === 'function') saveData();
   }
 
-  // ── Ajouter un nœud vide au centre ───────────────────────
-  addNode() {
-    if (!this.diagram) return;
-    this._hideEmpty();
-    const view   = this.diagram.viewportBounds;
-    const center = view.center;
-    const newKey = Date.now();
+  // ── Rendu complet ─────────────────────────────────────────
+  _render() {
+    this.inner.querySelectorAll('.oc-node').forEach(n => n.remove());
+    this._drawEdges();
+    this.nodes.forEach(n => this._mkNode(n));
+  }
 
-    this.diagram.startTransaction('add node');
-    this.diagram.model.addNodeData({
-      key:       newKey,
-      label:     'Nouveau rôle',
-      sublabel:  'Service',
-      color:     '#1d4ed8',
-      textColor: '#ffffff',
-      size:      '180 65'
+  // ── Arêtes SVG ───────────────────────────────────────────
+  _drawEdges() {
+    this.edgesG.innerHTML = '';
+    const p = this.p;
+
+    // Ligne de connexion en cours
+    if (this._conn) {
+      const a = this.nodes.find(n => n.id === this._conn.from);
+      if (a) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1', a.x + a.w/2); line.setAttribute('y1', a.y + a.h);
+        line.setAttribute('x2', this._conn.mx||0); line.setAttribute('y2', this._conn.my||0);
+        line.setAttribute('stroke','#3b82f6'); line.setAttribute('stroke-width','2');
+        line.setAttribute('stroke-dasharray','6,4');
+        this.edgesG.appendChild(line);
+      }
+    }
+
+    this.edges.forEach(e => {
+      const a = this.nodes.find(n => n.id === e.from);
+      const b = this.nodes.find(n => n.id === e.to);
+      if (!a || !b) return;
+      const x1=a.x+a.w/2, y1=a.y+a.h, x2=b.x+b.w/2, y2=b.y;
+      const cy=(y1+y2)/2;
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',`M${x1},${y1} C${x1},${cy} ${x2},${cy} ${x2},${y2}`);
+      path.setAttribute('fill','none'); path.setAttribute('stroke','#94a3b8');
+      path.setAttribute('stroke-width','2');
+      path.setAttribute('marker-end',`url(#${p}Arr)`);
+      path.style.cursor='pointer';
+      const eid = e.id;
+      path.addEventListener('click', () => {
+        if (confirm('Supprimer cette connexion ?')) {
+          this.edges = this.edges.filter(x => x.id !== eid);
+          this._drawEdges(); this._save();
+        }
+      });
+      this.edgesG.appendChild(path);
     });
-    // Positionner au centre de la vue
-    const node = this.diagram.findNodeForKey(newKey);
-    if (node) node.location = center;
-    this.diagram.commitTransaction('add node');
+  }
 
-    // Sélectionner et ouvrir sidebar pour édition immédiate
-    if (node) {
-      this.diagram.select(node);
-      setTimeout(() => {
-        const label = node.findObject('LABEL');
-        if (label) this.diagram.commandHandler.editTextBlock(label);
-      }, 80);
+  // ── Créer un nœud DOM ────────────────────────────────────
+  _mkNode(node) {
+    document.getElementById(`oc_${node.id}`)?.remove();
+    const el = document.createElement('div');
+    el.className = 'oc-node';
+    el.id = `oc_${node.id}`;
+    el.style.cssText = `left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;background:${node.bg||'#1d4ed8'};color:${node.fg||'#fff'};`;
+
+    el.innerHTML = `
+      <div class="oc-nlbl" id="oL_${node.id}">${node.label||''}</div>
+      <div class="oc-nsub" id="oS_${node.id}">${node.sub||''}</div>
+      ${this.readOnly?'':'<span class="oc-del" title="Supprimer">✕</span>'}`;
+
+    // Suppression
+    if (!this.readOnly) {
+      el.querySelector('.oc-del')?.addEventListener('click', e => {
+        e.stopPropagation();
+        if (confirm('Supprimer ce nœud ?')) this._removeNode(node.id);
+      });
+    }
+
+    // Clic = sélection / connexion
+    el.addEventListener('mousedown', e => {
+      if (e.target.classList.contains('oc-del')) return;
+      if (e.target.classList.contains('oc-nlbl') && e.target.isContentEditable) return;
+      e.stopPropagation(); e.preventDefault();
+
+      if (e.shiftKey && !this.readOnly) {
+        if (!this._conn) {
+          this._conn = {from: node.id, mx: node.x+node.w/2, my: node.y+node.h};
+          this._selEl(el);
+        } else if (this._conn.from !== node.id) {
+          this._addEdge(this._conn.from, node.id);
+          this._conn = null;
+          this.stage.style.cursor = '';
+          this._drawEdges();
+        }
+        return;
+      }
+
+      // Drag
+      if (!this.readOnly) {
+        this._drag = {id: node.id, ox: e.clientX/this.zoom - node.x, oy: e.clientY/this.zoom - node.y};
+      }
+      this._selectNode(node.id, el);
+    });
+
+    // Double-clic = édition inline
+    if (!this.readOnly) {
+      el.addEventListener('dblclick', e => {
+        e.stopPropagation();
+        const isLabel = e.target.classList.contains('oc-nlbl');
+        const target  = isLabel ? e.target : el.querySelector('.oc-nlbl');
+        this._editInline(target, node, isLabel ? 'label' : 'sub');
+      });
+    }
+
+    // Resize via ResizeObserver
+    if (!this.readOnly) {
+      let t;
+      new ResizeObserver(() => {
+        clearTimeout(t);
+        t = setTimeout(() => {
+          const nd = this.nodes.find(n => n.id === node.id);
+          if (!nd) return;
+          const w = el.offsetWidth, h = el.offsetHeight;
+          if (nd.w !== w || nd.h !== h) { nd.w=w; nd.h=h; this._drawEdges(); this._save(); }
+        }, 60);
+      }).observe(el);
+    }
+
+    this.inner.appendChild(el);
+  }
+
+  // ── Sélection ────────────────────────────────────────────
+  _selectNode(id, el) {
+    this.sel = id;
+    this.inner.querySelectorAll('.oc-node').forEach(n => n.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+    this._openSB(id);
+  }
+  _selEl(el) {
+    this.inner.querySelectorAll('.oc-node').forEach(n => n.classList.remove('selected'));
+    el?.classList.add('selected');
+  }
+  _desel() {
+    this.sel = null;
+    this._conn = null;
+    this.stage.style.cursor = '';
+    this.inner.querySelectorAll('.oc-node').forEach(n => n.classList.remove('selected'));
+    this._closeSB();
+    this._drawEdges();
+  }
+
+  // ── Sidebar ───────────────────────────────────────────────
+  _openSB(id) {
+    const nd = this.nodes.find(n => n.id === id);
+    if (!nd || this.readOnly) return;
+    const p = this.p;
+    document.getElementById(`${p}SB`).style.display = 'flex';
+    document.getElementById(`${p}SBL`).value = nd.label || '';
+    document.getElementById(`${p}SBS`).value = nd.sub   || '';
+    document.getElementById(`${p}SBC`).value = nd.bg    || '#1d4ed8';
+    const isW = (nd.fg||'#fff') === '#ffffff';
+    document.getElementById(`${p}SBTW`).style.outline = isW  ? '2px solid #fbbf24' : 'none';
+    document.getElementById(`${p}SBTD`).style.outline = !isW ? '2px solid #fbbf24' : 'none';
+    this._tcChoice = nd.fg || '#ffffff';
+  }
+  _closeSB() {
+    document.getElementById(`${this.p}SB`)?.style &&
+      (document.getElementById(`${this.p}SB`).style.display = 'none');
+  }
+  _setTC(btnSuffix, color) {
+    const p = this.p;
+    this._tcChoice = color;
+    document.getElementById(`${p}SBTW`).style.outline = color==='#ffffff' ? '2px solid #fbbf24' : 'none';
+    document.getElementById(`${p}SBTD`).style.outline = color==='#1e293b' ? '2px solid #fbbf24' : 'none';
+  }
+  _applySB() {
+    const nd = this.nodes.find(n => n.id === this.sel);
+    if (!nd) return;
+    const p = this.p;
+    nd.label = document.getElementById(`${p}SBL`).value.trim();
+    nd.sub   = document.getElementById(`${p}SBS`).value.trim();
+    nd.bg    = document.getElementById(`${p}SBC`).value;
+    nd.fg    = this._tcChoice || '#ffffff';
+    // Mettre à jour le DOM sans tout re-render
+    const el = document.getElementById(`oc_${nd.id}`);
+    if (el) {
+      el.style.background = nd.bg; el.style.color = nd.fg;
+      el.querySelector('.oc-nlbl').textContent = nd.label;
+      el.querySelector('.oc-nsub').textContent = nd.sub;
+    }
+    this._save();
+  }
+  _deleteSel() {
+    if (!this.sel || !confirm('Supprimer ce nœud et ses connexions ?')) return;
+    this._removeNode(this.sel);
+    this._closeSB();
+  }
+  _removeNode(id) {
+    this.nodes = this.nodes.filter(n => n.id !== id);
+    this.edges = this.edges.filter(e => e.from !== id && e.to !== id);
+    document.getElementById(`oc_${id}`)?.remove();
+    if (this.sel === id) { this.sel = null; this._closeSB(); }
+    this._drawEdges(); this._save();
+    if (!this.nodes.length) this._showEmpty();
+  }
+
+  // ── Édition inline ────────────────────────────────────────
+  _editInline(el, node, field) {
+    el.contentEditable = 'true';
+    el.focus();
+    const r = document.createRange();
+    r.selectNodeContents(el);
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    const done = () => {
+      el.contentEditable = 'false';
+      node[field] = el.textContent.trim();
+      this._save();
+    };
+    el.addEventListener('blur',    done, {once:true});
+    el.addEventListener('keydown', e => {
+      if (e.key==='Enter')  { e.preventDefault(); el.blur(); }
+      if (e.key==='Escape') { el.textContent = node[field]; el.blur(); }
+    });
+  }
+
+  // ── Souris globale ────────────────────────────────────────
+  _mouseMove(e) {
+    if (this._pan) {
+      this.tx = this._pan.tx + (e.clientX - this._pan.sx);
+      this.ty = this._pan.ty + (e.clientY - this._pan.sy);
+      this._tf(); return;
+    }
+    if (this._drag) {
+      const nd = this.nodes.find(n => n.id === this._drag.id);
+      if (!nd) return;
+      nd.x = Math.max(0, Math.round(e.clientX/this.zoom - this._drag.ox));
+      nd.y = Math.max(0, Math.round(e.clientY/this.zoom - this._drag.oy));
+      const el = document.getElementById(`oc_${nd.id}`);
+      if (el) { el.style.left = nd.x+'px'; el.style.top = nd.y+'px'; }
+      this._drawEdges(); return;
+    }
+    if (this._conn) {
+      const r = this.inner.getBoundingClientRect();
+      this._conn.mx = (e.clientX - r.left) / this.zoom;
+      this._conn.my = (e.clientY - r.top)  / this.zoom;
+      this._drawEdges();
     }
   }
+  _mouseUp(e) {
+    if (this._drag) { this._save(); this._drag = null; this.stage.style.cursor = ''; }
+    if (this._pan)  { this._pan = null; }
+  }
 
-  // ── Recadrer la vue ──────────────────────────────────────
+  // ── Connexion ─────────────────────────────────────────────
+  _addEdge(from, to) {
+    if (this.edges.some(e => e.from===from && e.to===to)) return;
+    this.edges.push({id:'e_'+Date.now(), from, to});
+    this._save();
+  }
+
+  // ── Transformation ────────────────────────────────────────
+  _tf() {
+    this.inner.style.transform = `translate(${this.tx}px,${this.ty}px) scale(${this.zoom})`;
+  }
+
+  // ── Recadrer ──────────────────────────────────────────────
   fitView() {
-    if (!this.diagram) return;
-    this.diagram.zoomToFit();
+    if (!this.nodes.length) return;
+    const pad=60, W=this.stage.offsetWidth||800, H=this.stage.offsetHeight||500;
+    const minX=Math.min(...this.nodes.map(n=>n.x)), minY=Math.min(...this.nodes.map(n=>n.y));
+    const maxX=Math.max(...this.nodes.map(n=>n.x+n.w)), maxY=Math.max(...this.nodes.map(n=>n.y+n.h));
+    this.zoom = Math.min(1.6, Math.min((W-pad*2)/(maxX-minX||1), (H-pad*2)/(maxY-minY||1)));
+    this.tx = pad - minX*this.zoom;
+    this.ty = pad - minY*this.zoom;
+    this._tf();
   }
 
-  // ── Appliquer un layout arbre ────────────────────────────
-  applyLayout() {
-    if (!this.diagram) return;
-    this.diagram.layoutDiagram(true);
+  // ── Ajouter un nœud ──────────────────────────────────────
+  addNode() {
+    this._hideEmpty();
+    const nd = {
+      id:    'n_'+Date.now(),
+      x:     80 + (this.nodes.length%5)*40,
+      y:     80 + Math.floor(this.nodes.length/5)*90,
+      w:     180, h:65,
+      label: 'Nouveau rôle',
+      sub:   'Service',
+      bg:    '#1d4ed8', fg:'#fff'
+    };
+    this.nodes.push(nd);
+    this._mkNode(nd);
+    this._save();
+    setTimeout(() => {
+      const el = document.getElementById(`oc_${nd.id}`);
+      if (el) this._selectNode(nd.id, el);
+      this._editInline(document.getElementById(`oL_${nd.id}`), nd, 'label');
+    }, 60);
   }
 
-  // ── Vider le canvas ─────────────────────────────────────
+  // ── Vider ────────────────────────────────────────────────
   clearAll() {
     if (!confirm('Vider complètement cet organigramme ?')) return;
-    this.diagram.startTransaction('clear');
-    this.diagram.clear();
-    this.diagram.commitTransaction('clear');
-    this._save();
-    this._showEmpty();
+    this.nodes=[]; this.edges=[];
+    this.inner.querySelectorAll('.oc-node').forEach(n=>n.remove());
+    this.edgesG.innerHTML='';
+    this._save(); this._showEmpty();
   }
 
-  // ── Initialiser un département vierge ───────────────────
-  initialiserNouveauDepartement(idDepartement) {
-    if (!DATA.orgCharts) DATA.orgCharts = {};
-    DATA.orgCharts[idDepartement] = { nodes: [], edges: [] };
-    if (this.deptId === idDepartement) {
-      this._setModel([], []);
-      this._showEmpty();
-    }
-    if (typeof saveData === 'function') saveData();
-  }
+  // ── Canvas vide ──────────────────────────────────────────
+  _showEmpty() { const e=document.getElementById(`${this.p}E`); if(e) e.style.display='flex'; }
+  _hideEmpty() { const e=document.getElementById(`${this.p}E`); if(e) e.style.display='none'; }
 
-  // ── Modal Templates ──────────────────────────────────────
+  // ── Templates ────────────────────────────────────────────
   openTemplates() {
     const body = document.getElementById('employeFormBody');
-    if (!body) return;
-
-    const cards = Object.entries(TEMPLATES_CONFIG).map(([key, tpl]) => `
-      <div class="oc-template-card" data-tpl="${key}">
-        <div class="oc-tpl-icon">${tpl.label.split(' ')[0]}</div>
-        <div class="oc-tpl-name">${tpl.label.slice(tpl.label.indexOf(' ')+1)}</div>
-        <div class="oc-tpl-desc">${tpl.nodes.length} nœuds · ${tpl.edges.length} connexions</div>
-      </div>`).join('');
-
+    if (!body) { alert('Erreur: modal introuvable'); return; }
     body.innerHTML = `
       <h2>📋 Choisir un modèle de départ</h2>
-      <p style="color:#64748b;font-size:.88rem;margin-bottom:16px">
+      <p style="color:#64748b;font-size:.88rem;margin-bottom:14px">
         Le modèle remplace l'organigramme actuel. Vous pourrez ensuite tout modifier.
       </p>
-      <div class="oc-template-grid">${cards}</div>
-      <div class="modal-actions" style="margin-top:18px">
+      <div class="oc-template-grid">
+        ${Object.entries(TEMPLATES_CONFIG).map(([k,t])=>`
+          <div class="oc-template-card" data-tpl="${k}">
+            <div class="oc-tpl-icon">${k==='standard'?'🏢':k==='logistique'?'🏭':k==='commercial'?'💼':'👥'}</div>
+            <div class="oc-tpl-name">${t.label}</div>
+            <div class="oc-tpl-desc">${t.nodes.length} nœuds · ${t.edges.length} liens</div>
+          </div>`).join('')}
+      </div>
+      <div class="modal-actions" style="margin-top:16px">
         <button class="btn secondary" onclick="closeAllModals()">Annuler</button>
       </div>`;
-
     if (typeof openModal === 'function') openModal('employeFormModal');
-
-    // Lier les cartes sur this directement
-    body.querySelectorAll('.oc-template-card[data-tpl]').forEach(card => {
+    body.querySelectorAll('[data-tpl]').forEach(card => {
       card.addEventListener('click', () => {
         this.loadTemplate(card.dataset.tpl);
         if (typeof closeAllModals === 'function') closeAllModals();
@@ -581,27 +572,25 @@ class OrgCanvas {
     });
   }
 
-  // ── Charger un template ──────────────────────────────────
   loadTemplate(type) {
     const tpl = TEMPLATES_CONFIG[type];
     if (!tpl) return;
-    if (this.diagram.model.nodeDataArray.length > 0 &&
-        !confirm('Remplacer l\'organigramme actuel par ce modèle ?')) return;
-
-    this._setModel(tpl.nodes, tpl.edges);
-
-    // Layout automatique après chargement
-    setTimeout(() => {
-      this.applyLayout();
-      setTimeout(() => this.fitView(), 300);
-    }, 80);
+    if (this.nodes.length && !confirm('Remplacer l\'organigramme actuel ?')) return;
+    this.nodes = JSON.parse(JSON.stringify(tpl.nodes));
+    this.edges = JSON.parse(JSON.stringify(tpl.edges));
+    this._save(); this._render(); this._hideEmpty();
+    setTimeout(() => this.fitView(), 80);
   }
 
-  // ── Nettoyage ────────────────────────────────────────────
+  initialiserNouveauDepartement(id) {
+    if (!DATA.orgCharts) DATA.orgCharts={};
+    DATA.orgCharts[id] = {nodes:[],edges:[]};
+    if (this.deptId===id) { this.nodes=[]; this.edges=[]; this._render(); this._showEmpty(); }
+    if (typeof saveData==='function') saveData();
+  }
+
   destroy() {
-    if (this.diagram) {
-      this.diagram.div = null;
-      this.diagram = null;
-    }
+    window.removeEventListener('mousemove', this._onMv);
+    window.removeEventListener('mouseup',   this._onUp);
   }
 }

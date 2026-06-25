@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POC Organigramme Interactif</title>
+
+<!-- OrgChart.js via CDN (MIT, gratuit) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@dabeng/orgchart@3.8.0/dist/css/jquery.orgchart.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@dabeng/orgchart@3.8.0/dist/js/jquery.orgchart.min.js"></script>
+
+<style>
+  :root{
+    --primary:#1d4ed8;
+    --bg:#f4f6fb;
+  }
+  body{ margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg); }
+
+  /* ===== Barre d'outils ===== */
+  .toolbar{
+    background:#fff;
+    border-bottom:1px solid #e2e8f0;
+    padding:10px 20px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .toolbar h2{ margin:0; font-size:1rem; color:#1e293b; }
+  .btn{
+    padding:7px 14px; border:none; border-radius:7px;
+    cursor:pointer; font-size:.85rem; font-weight:500;
+  }
+  .btn-primary{ background:#1d4ed8; color:#fff; }
+  .btn-secondary{ background:#fff; color:#1d4ed8; border:1px solid #1d4ed8; }
+  .btn-danger{ background:#dc2626; color:#fff; }
+  .btn:hover{ opacity:.88; }
+
+  /* Palette de thèmes */
+  .theme-btn{
+    width:26px; height:26px; border-radius:6px;
+    border:2px solid transparent; cursor:pointer;
+    transition:transform .1s;
+  }
+  .theme-btn:hover,.theme-btn.active{ border-color:#1e293b; transform:scale(1.15); }
+
+  /* ===== Conteneur organigramme ===== */
+  #chart-container{
+    width:100%; height:calc(100vh - 120px);
+    overflow:auto; background:var(--bg);
+    position:relative;
+  }
+
+  /* ===== Style des nœuds ===== */
+  .orgchart{
+    background:transparent !important;
+    padding:20px !important;
+  }
+  .orgchart .node{
+    width:160px !important;
+    padding:0 !important;
+    border:none !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+  .orgchart .node .title{
+    border-radius:8px 8px 0 0 !important;
+    padding:10px 10px 6px !important;
+    font-size:.82rem !important;
+    font-weight:700 !important;
+    border:none !important;
+    letter-spacing:.3px;
+  }
+  .orgchart .node .content{
+    border-radius:0 0 8px 8px !important;
+    padding:6px 10px 10px !important;
+    font-size:.75rem !important;
+    border:none !important;
+    color:#334155 !important;
+  }
+  .orgchart .node:hover .title{
+    filter:brightness(1.07);
+  }
+
+  /* Thème par défaut (bleu) */
+  .orgchart.theme-blue .node .title{ background:#1d4ed8 !important; color:#fff !important; }
+  .orgchart.theme-blue .node .content{ background:#e0e7ff !important; }
+
+  /* Thème vert */
+  .orgchart.theme-green .node .title{ background:#15803d !important; color:#fff !important; }
+  .orgchart.theme-green .node .content{ background:#dcfce7 !important; }
+
+  /* Thème violet */
+  .orgchart.theme-purple .node .title{ background:#7c3aed !important; color:#fff !important; }
+  .orgchart.theme-purple .node .content{ background:#ede9fe !important; }
+
+  /* Thème orange */
+  .orgchart.theme-orange .node .title{ background:#ea580c !important; color:#fff !important; }
+  .orgchart.theme-orange .node .content{ background:#ffedd5 !important; }
+
+  /* Thème sombre */
+  .orgchart.theme-dark .node .title{ background:#1e293b !important; color:#fff !important; }
+  .orgchart.theme-dark .node .content{ background:#334155 !important; color:#e2e8f0 !important; }
+
+  /* Lignes de connexion */
+  .orgchart .lines .downLine,
+  .orgchart .lines .topLine,
+  .orgchart .lines .rightLine,
+  .orgchart .lines .leftLine{ border-color:#94a3b8 !important; }
+
+  /* Zoom */
+  .zoom-bar{
+    position:fixed; bottom:24px; right:24px;
+    background:#fff; border-radius:10px;
+    box-shadow:0 4px 16px rgba(0,0,0,.12);
+    padding:8px 12px; display:flex; align-items:center; gap:10px;
+    z-index:100;
+  }
+  .zoom-bar button{ font-size:1.1rem; background:none; border:none; cursor:pointer; }
+
+  /* Panneau de log des modifications */
+  #log{
+    position:fixed; bottom:24px; left:24px;
+    background:#1e293b; color:#94a3b8;
+    border-radius:10px; padding:14px;
+    font-size:.75rem; max-width:360px; max-height:180px;
+    overflow-y:auto; z-index:100; font-family:monospace;
+  }
+  #log .entry{ color:#86efac; margin-bottom:3px; }
+  #log .entry span{ color:#fde047; }
+
+  /* Indicateur mode édition */
+  .edit-badge{
+    background:#16a34a; color:#fff;
+    padding:4px 10px; border-radius:6px;
+    font-size:.75rem; font-weight:600;
+    display:none;
+  }
+</style>
+</head>
+<body>
+
+<!-- BARRE D'OUTILS -->
+<div class="toolbar">
+  <h2>🗂 Organigramme Interactif — POC</h2>
+
+  <span class="edit-badge" id="editBadge">✏ Mode édition actif</span>
+
+  <button class="btn btn-primary" onclick="toggleEdit()">✏ Mode édition</button>
+  <button class="btn btn-secondary" onclick="addNode()">+ Ajouter nœud</button>
+  <button class="btn btn-danger" onclick="removeSelected()">✕ Supprimer sélectionné</button>
+  <button class="btn btn-secondary" onclick="exportData()">💾 Exporter JSON</button>
+  <button class="btn btn-secondary" onclick="exportPNG()">📷 Exporter PNG</button>
+
+  <!-- Palette de thèmes -->
+  <div style="display:flex;align-items:center;gap:6px;margin-left:8px;">
+    <span style="font-size:.8rem;color:#64748b;">Thème :</span>
+    <div class="theme-btn active" style="background:#1d4ed8" onclick="setTheme('blue',this)" title="Bleu"></div>
+    <div class="theme-btn" style="background:#15803d" onclick="setTheme('green',this)" title="Vert"></div>
+    <div class="theme-btn" style="background:#7c3aed" onclick="setTheme('purple',this)" title="Violet"></div>
+    <div class="theme-btn" style="background:#ea580c" onclick="setTheme('orange',this)" title="Orange"></div>
+    <div class="theme-btn" style="background:#1e293b" onclick="setTheme('dark',this)" title="Sombre"></div>
+  </div>
+</div>
+
+<!-- CONTENEUR ORGANIGRAMME -->
+<div id="chart-container">
+  <div id="chart"></div>
+</div>
+
+<!-- BARRE ZOOM -->
+<div class="zoom-bar">
+  <span style="font-size:.78rem;color:#64748b;">Zoom</span>
+  <button onclick="zoom(-0.1)">−</button>
+  <span id="zoomVal" style="font-size:.8rem;min-width:36px;text-align:center;">100%</span>
+  <button onclick="zoom(0.1)">+</button>
+  <button onclick="resetZoom()" title="Réinitialiser">⟳</button>
+</div>
+
+<!-- LOG DES MODIFICATIONS -->
+<div id="log">
+  <div style="color:#e2e8f0;font-weight:bold;margin-bottom:6px;">📋 Journal des modifications</div>
+  <div class="entry">Prêt — activez le mode édition pour commencer.</div>
+</div>
+
+
+<script>
+// =========================================================
+// DONNÉES INITIALES (remplacez par votre DATA réel)
+// =========================================================
+const datasource = {
+  id: "1",
+  name: "Directeur Logistique",
+  title: "Direction",
+  children: [
+    {
+      id: "2",
+      name: "Zied Graf",
+      title: "Responsable Dépôt Central",
+      children: [
+        { id: "3", name: "Employé 1", title: "Agent de dépôt" },
+        { id: "4", name: "Employé 2", title: "Agent de dépôt" },
+        { id: "5", name: "Employé 3", title: "Agent de dépôt" }
+      ]
+    },
+    {
+      id: "6",
+      name: "Resp. Vente en ligne",
+      title: "Responsable Dépôt Vente",
+      children: [
+        { id: "7", name: "Agent 1", title: "Agent dépôt vente" },
+        { id: "8", name: "Agent 2", title: "Agent dépôt vente" }
+      ]
+    },
+    {
+      id: "9",
+      name: "Houcem Charfi",
+      title: "Gestionnaire de stock",
+      children: [
+        { id: "10", name: "Agent stock 1", title: "Agent gestion stock" }
+      ]
+    }
+  ]
+};
+
+// =========================================================
+// ÉTAT
+// =========================================================
+let oc;
+let zoomLevel = 1.0;
+let editActive = false;
+let selectedNode = null;
+
+// =========================================================
+// INITIALISATION
+// =========================================================
+$(function(){
+  oc = $("#chart").orgchart({
+    data: datasource,
+    nodeContent: "title",
+    draggable: false,       // activé uniquement en mode édition
+    editable: false,        // idem
+    exportButton: false,
+    zoom: false,
+    pan: true,
+
+    // Callback : nœud déplacé (hiérarchie modifiée)
+    onDrop: function(draggedNode, targetNode){
+      logChange("Déplacement", `"${draggedNode.find(".title").text()}" → sous "${targetNode.find(".title").text()}"`);
+    },
+
+    // Callback : nœud édité
+    createNode: function($node, data){
+      $node.on("click", function(){
+        if(!editActive) return;
+        selectedNode = $node;
+        $node.css("outline","2px solid #f59e0b");
+      });
+
+      $node.on("dblclick", function(){
+        if(!editActive) return;
+        const currentName = $node.find(".title").text();
+        const currentRole = $node.find(".content").text();
+        const newName = prompt("Nom :", currentName);
+        if(newName === null) return;
+        const newRole = prompt("Poste :", currentRole);
+        if(newRole === null) return;
+        $node.find(".title").text(newName);
+        $node.find(".content").text(newRole);
+        logChange("Édition", `"${currentName}" → "${newName}" (${newRole})`);
+      });
+    }
+  });
+
+  // Thème initial
+  $("#chart .orgchart").addClass("theme-blue");
+});
+
+// =========================================================
+// MODE ÉDITION
+// =========================================================
+function toggleEdit(){
+  editActive = !editActive;
+  const orgEl = $("#chart .orgchart");
+
+  if(editActive){
+    // Active drag & drop
+    orgEl.find(".node").attr("draggable", true);
+    oc.options.draggable = true;
+    document.getElementById("editBadge").style.display = "inline-block";
+    logChange("Mode édition", "ACTIVÉ — glissez les nœuds, double-cliquez pour éditer");
+  } else {
+    orgEl.find(".node").attr("draggable", false);
+    oc.options.draggable = false;
+    orgEl.find(".node").css("outline","");
+    selectedNode = null;
+    document.getElementById("editBadge").style.display = "none";
+    logChange("Mode édition", "DÉSACTIVÉ");
+  }
+}
+
+// =========================================================
+// AJOUTER UN NŒUD
+// =========================================================
+function addNode(){
+  if(!editActive){
+    alert("Activez d'abord le mode édition.");
+    return;
+  }
+  if(!selectedNode){
+    alert("Cliquez d'abord sur un nœud pour le sélectionner (il s'entoure en orange), puis cliquez + Ajouter.");
+    return;
+  }
+  const name = prompt("Nom du nouvel employé :");
+  if(!name) return;
+  const role = prompt("Poste :");
+  if(!role) return;
+
+  const newId = "node_" + Date.now();
+  oc.addChildren(selectedNode, {
+    id: newId,
+    name: name,
+    title: role
+  });
+  logChange("Ajout", `"${name}" (${role})`);
+  selectedNode.css("outline","");
+  selectedNode = null;
+}
+
+// =========================================================
+// SUPPRIMER UN NŒUD
+// =========================================================
+function removeSelected(){
+  if(!editActive){ alert("Activez d'abord le mode édition."); return; }
+  if(!selectedNode){ alert("Cliquez d'abord sur un nœud pour le sélectionner."); return; }
+  const name = selectedNode.find(".title").text();
+  if(!confirm(`Supprimer "${name}" et tous ses subordonnés ?`)) return;
+  oc.removeNodes(selectedNode);
+  logChange("Suppression", `"${name}"`);
+  selectedNode = null;
+}
+
+// =========================================================
+// THÈMES
+// =========================================================
+function setTheme(theme, btn){
+  const orgEl = $("#chart .orgchart");
+  orgEl.removeClass("theme-blue theme-green theme-purple theme-orange theme-dark");
+  orgEl.addClass("theme-" + theme);
+  document.querySelectorAll(".theme-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  logChange("Thème", theme);
+}
+
+// =========================================================
+// ZOOM
+// =========================================================
+function zoom(delta){
+  zoomLevel = Math.min(2, Math.max(0.3, zoomLevel + delta));
+  document.getElementById("chart").style.transform = `scale(${zoomLevel})`;
+  document.getElementById("chart").style.transformOrigin = "top center";
+  document.getElementById("zoomVal").textContent = Math.round(zoomLevel*100) + "%";
+}
+function resetZoom(){
+  zoomLevel = 1;
+  document.getElementById("chart").style.transform = "scale(1)";
+  document.getElementById("zoomVal").textContent = "100%";
+}
+
+// =========================================================
+// EXPORT JSON (callback pour sauvegarder)
+// =========================================================
+function exportData(){
+  // Récupère la structure actuelle de l'organigramme
+  const structure = buildStructureFromDOM();
+  const json = JSON.stringify(structure, null, 2);
+  console.log("Structure actuelle :", json);
+
+  // Téléchargement du fichier JSON
+  const blob = new Blob([json], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "organigramme.json";
+  a.click(); URL.revokeObjectURL(url);
+  logChange("Export JSON", "Fichier téléchargé");
+}
+
+function buildStructureFromDOM(){
+  // Parcourt le DOM de l'organigramme pour reconstruire l'arbre
+  function parseNode(nodeEl){
+    const name = $(nodeEl).find(".title").text();
+    const title = $(nodeEl).find(".content").text();
+    const id = $(nodeEl).attr("id");
+    const children = [];
+    $(nodeEl).next("table").find("> tbody > tr:last-child > td > .node").each(function(){
+      children.push(parseNode(this));
+    });
+    return children.length ? {id, name, title, children} : {id, name, title};
+  }
+  const root = $("#chart .orgchart > table > tbody > tr .node").first();
+  return parseNode(root[0]);
+}
+
+// =========================================================
+// EXPORT PNG
+// =========================================================
+function exportPNG(){
+  $("#chart").orgchart("exportToImage", "organigramme-luxolor");
+  logChange("Export PNG", "Image téléchargée");
+}
+
+// =========================================================
+// LOG
+// =========================================================
+function logChange(action, detail){
+  const log = document.getElementById("log");
+  const time = new Date().toLocaleTimeString();
+  const entry = document.createElement("div");
+  entry.className = "entry";
+  entry.innerHTML = `[${time}] <span>${action}</span> : ${detail}`;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+</script>
+
+</body>
+</html>

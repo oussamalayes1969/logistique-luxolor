@@ -155,22 +155,11 @@ main{padding:16px 24px;max-width:100%;margin:0;}
   height:100%;
 }
 
-/* ===== GoJS Canvas ===== */
-.oc-gojs-canvas{
-  flex:1;
-  height:100%;
-  background:#f8fafc;
-  background-image:radial-gradient(circle,#cbd5e1 1px,transparent 1px);
-  background-size:28px 28px;
-  position:relative;
-}
-
 /* Zone principale (canvas + sidebar côte à côte) */
 .oc-main{
   display:flex;
   flex:1;
   overflow:hidden;
-  height:calc(100% - 44px);
   position:relative;
 }
 
@@ -255,8 +244,8 @@ main{padding:16px 24px;max-width:100%;margin:0;}
 .oc-hint{ font-size:.76rem; color:var(--muted); }
 
 .oc-stage{
-  position:absolute;
-  inset:0;
+  flex:1;
+  position:relative;
   overflow:hidden;
   background-color:#f8fafc;
   background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
@@ -287,7 +276,7 @@ main{padding:16px 24px;max-width:100%;margin:0;}
 .oc-node{
   position:absolute;
   border-radius:10px;
-  padding:10px 14px 10px 14px;
+  padding:10px 14px;
   box-shadow:0 3px 12px rgba(0,0,0,.2);
   cursor:grab;
   user-select:none;
@@ -303,32 +292,33 @@ main{padding:16px 24px;max-width:100%;margin:0;}
   outline-offset:2px;
   box-shadow:0 6px 24px rgba(251,191,36,.4);
 }
-.oc-node-label{
+.oc-nlbl{
   font-weight:700;
   font-size:.84rem;
   line-height:1.3;
   outline:none;
 }
-.oc-node-sub{
+.oc-nsub{
   font-size:.72rem;
   margin-top:3px;
   opacity:.82;
   outline:none;
 }
-.oc-node-del{
+.oc-del{
   position:absolute;
   top:4px; right:6px;
-  font-size:.75rem;
+  font-size:.7rem;
   cursor:pointer;
   opacity:0;
   transition:opacity .1s;
   line-height:1;
-  background:rgba(0,0,0,.2);
+  background:rgba(0,0,0,.25);
   border-radius:50%;
   width:16px; height:16px;
   display:flex; align-items:center; justify-content:center;
+  color:#fff;
 }
-.oc-node:hover .oc-node-del{ opacity:1; }
+.oc-node:hover .oc-del{ opacity:1; }
 
 /* ── Canvas vide ── */
 .oc-empty{
