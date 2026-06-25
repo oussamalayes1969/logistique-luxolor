@@ -29,19 +29,17 @@ class OrgCanvas {
   // ── Construire le DOM ──────────────────────────────────────
   _build() {
     const wrap = document.getElementById(this.containerId);
-    if (!wrap) return;
+    if (!wrap) { console.error('OrgCanvas: conteneur introuvable', this.containerId); return; }
 
-    const toolbar = this.readOnly ? '' : `
-      <div class="oc-toolbar">
-        <button class="btn oc-tbtn" onclick="window._oc.addNode()">＋ Nœud</button>
-        <button class="btn oc-tbtn secondary" onclick="window._oc.openTemplates()">📋 Modèle</button>
+    wrap.innerHTML = `
+      <div class="oc-toolbar" id="${this.containerId}_toolbar" style="${this.readOnly?'display:none':''}">
+        <button class="btn oc-tbtn" id="${this.containerId}_btn_add">＋ Nœud</button>
+        <button class="btn oc-tbtn secondary" id="${this.containerId}_btn_tpl">📋 Modèle</button>
         <span style="flex:1"></span>
-        <button class="btn oc-tbtn secondary" onclick="window._oc.fitView()">⊙ Recadrer</button>
-        <button class="btn oc-tbtn secondary" onclick="window._oc.clearAll()">🗑 Vider</button>
+        <button class="btn oc-tbtn secondary" id="${this.containerId}_btn_fit">⊙ Recadrer</button>
+        <button class="btn oc-tbtn secondary" id="${this.containerId}_btn_clr">🗑 Vider</button>
         <span class="oc-hint">Maj+clic = relier · Dbl-clic = éditer · Drag = déplacer</span>
-      </div>`;
-
-    wrap.innerHTML = toolbar + `
+      </div>
       <div class="oc-stage" id="${this.containerId}_stage">
         <div class="oc-inner" id="${this.containerId}_inner">
           <svg class="oc-svg" id="${this.containerId}_svg"
@@ -61,6 +59,14 @@ class OrgCanvas {
     this.inner  = document.getElementById(`${this.containerId}_inner`);
     this.svg    = document.getElementById(`${this.containerId}_svg`);
     this.edgesG = document.getElementById(`${this.containerId}_edges`);
+
+    // Lier les boutons du toolbar directement sur this (pas de window._oc)
+    if (!this.readOnly) {
+      document.getElementById(`${this.containerId}_btn_add`).addEventListener('click', () => this.addNode());
+      document.getElementById(`${this.containerId}_btn_tpl`).addEventListener('click', () => this.openTemplates());
+      document.getElementById(`${this.containerId}_btn_fit`).addEventListener('click', () => this.fitView());
+      document.getElementById(`${this.containerId}_btn_clr`).addEventListener('click', () => this.clearAll());
+    }
 
     // Zoom molette
     this.stage.addEventListener('wheel', e => {
@@ -133,11 +139,19 @@ class OrgCanvas {
       <p>Commencez par créer un nœud ou chargez un modèle.</p>
       ${this.readOnly ? '' : `
         <div style="display:flex;gap:12px;justify-content:center;margin-top:14px">
-          <button class="btn" onclick="window._oc.addNode()">＋ Créer le premier nœud</button>
-          <button class="btn secondary" onclick="window._oc.openTemplates()">📋 Choisir un modèle</button>
+          <button class="btn" id="${this.containerId}_empty_add">＋ Créer le premier nœud</button>
+          <button class="btn secondary" id="${this.containerId}_empty_tpl">📋 Choisir un modèle</button>
         </div>`}
     `;
     this.stage.appendChild(el);
+
+    // Lier les boutons sur this directement — pas de dépendance à window._oc
+    if (!this.readOnly) {
+      document.getElementById(`${this.containerId}_empty_add`)
+        ?.addEventListener('click', () => this.addNode());
+      document.getElementById(`${this.containerId}_empty_tpl`)
+        ?.addEventListener('click', () => this.openTemplates());
+    }
   }
 
   // ── Rendu arêtes SVG ──────────────────────────────────────
@@ -413,18 +427,24 @@ class OrgCanvas {
       <h2>📋 Choisir un modèle de départ</h2>
       <p style="color:#64748b;font-size:.88rem">Le modèle remplacera l'organigramme actuel.</p>
       <div class="oc-template-grid">
-        ${this._tplCard('standard',   '🏢', 'Standard',      'DG → Managers → Agents')}
-        ${this._tplCard('logistique', '🏭', 'Logistique',    '4 pôles : Dépôt · Vente · Admin · Stock')}
-        ${this._tplCard('commercial', '💼', 'Commercial',    'Zones + ADV')}
+        ${this._tplCard('standard',   '🏢', 'Standard',            'DG → Managers → Agents')}
+        ${this._tplCard('logistique', '🏭', 'Logistique',          '4 pôles : Dépôt · Vente · Admin · Stock')}
+        ${this._tplCard('commercial', '💼', 'Commercial',          'Zones + ADV')}
         ${this._tplCard('plat',       '◼◼', 'Organisation plate', 'Chef + équipe parallèle')}
-        ${this._tplCard('matriciel',  '⊞', 'Matriciel',     'Projets × Fonctions')}
+        ${this._tplCard('matriciel',  '⊞',  'Matriciel',          'Projets × Fonctions')}
       </div>
       <div class="modal-actions"><button class="btn secondary" onclick="closeAllModals()">Annuler</button></div>`;
     openModal('employeFormModal');
+
+    // Lier les cartes template sur this — pas de window._oc
+    body.querySelectorAll('.oc-template-card[data-tpl]').forEach(card => {
+      card.addEventListener('click', () => this.loadTemplate(card.dataset.tpl));
+    });
   }
 
   _tplCard(type, icon, title, desc) {
-    return `<div class="oc-template-card" onclick="window._oc.loadTemplate('${type}')">
+    // data-type sera utilisé par le listener bindé sur this
+    return `<div class="oc-template-card" data-tpl="${type}">
       <div class="oc-tpl-icon">${icon}</div>
       <div class="oc-tpl-name">${title}</div>
       <div class="oc-tpl-desc">${desc}</div>
