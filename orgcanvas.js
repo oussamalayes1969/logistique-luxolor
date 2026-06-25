@@ -115,6 +115,7 @@ class OrgCanvas {
       <div id="${p}T" class="oc-toolbar" style="${ro?'display:none':''}">
         <button class="btn oc-tbtn" id="${p}BAdd">＋ Nouveau rôle</button>
         <button class="btn oc-tbtn secondary" id="${p}BTpl">📋 Modèle</button>
+        <button class="btn oc-tbtn" id="${p}BGen" style="background:#15803d">👥 Générer depuis les équipes</button>
         <span style="flex:1"></span>
         <button class="btn oc-tbtn secondary" id="${p}BFit">⊙ Recadrer</button>
         <button class="btn oc-tbtn secondary" id="${p}BClr">🗑 Vider</button>
@@ -138,9 +139,10 @@ class OrgCanvas {
             <div style="font-size:3rem">🏢</div>
             <h3>Organigramme vide</h3>
             <p>Créez votre premier rôle ou choisissez un modèle.</p>
-            ${ro ? '' : `<div style="display:flex;gap:12px;margin-top:14px">
-              <button class="btn" id="${p}EAdd">＋ Créer le premier rôle</button>
-              <button class="btn secondary" id="${p}ETpl">📋 Choisir un modèle</button>
+            ${ro ? '' : `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;justify-content:center">
+              <button class="btn" id="${p}EGen" style="background:#15803d">👥 Générer depuis les équipes</button>
+              <button class="btn" id="${p}EAdd">＋ Créer un rôle</button>
+              <button class="btn secondary" id="${p}ETpl">📋 Modèle</button>
             </div>`}
           </div>
         </div>
@@ -182,8 +184,10 @@ class OrgCanvas {
     if (!ro) {
       this._on(`${p}BAdd`, 'click', () => this.addNode());
       this._on(`${p}BTpl`, 'click', () => this.openTemplates());
+      this._on(`${p}BGen`, 'click', () => this.generateFromEmployees());
       this._on(`${p}BFit`, 'click', () => this.fitView());
       this._on(`${p}BClr`, 'click', () => this.clearAll());
+      this._on(`${p}EGen`, 'click', () => this.generateFromEmployees());
       this._on(`${p}EAdd`, 'click', () => this.addNode());
       this._on(`${p}ETpl`, 'click', () => this.openTemplates());
       // Sidebar
@@ -579,6 +583,105 @@ class OrgCanvas {
     this.nodes = JSON.parse(JSON.stringify(tpl.nodes));
     this.edges = JSON.parse(JSON.stringify(tpl.edges));
     this._save(); this._render(); this._hideEmpty();
+    setTimeout(() => this.fitView(), 80);
+  }
+
+  // ── Générer l'organigramme depuis les données employés ───────
+  generateFromEmployees() {
+    if (!window.DATA || !window.DATA.employes) {
+      alert('Données employés non disponibles.'); return;
+    }
+    if (this.nodes.length && !confirm('Remplacer l\'organigramme actuel par la liste des équipes ?')) return;
+
+    const emps    = window.DATA.employes;
+    const postes  = window.DATA.postes || [];
+    const posteM  = {};
+    postes.forEach(p => posteM[p.id] = p);
+
+    // Construire la map enfants
+    const childMap = {};
+    emps.forEach(e => {
+      const k = e.managerId || '__root__';
+      if (!childMap[k]) childMap[k] = [];
+      childMap[k].push(e);
+    });
+
+    // Trouver la racine
+    const root = emps.find(e => !e.managerId);
+    if (!root) { alert('Aucun employé sans manager trouvé (racine introuvable).'); return; }
+
+    const nodes = [], edges = [];
+
+    // Couleurs par branche
+    const BCOL = [
+      {bg:'#1d4ed8', lbg:'#bfdbfe', lfg:'#1e3a8a'},  // Bleu
+      {bg:'#15803d', lbg:'#bbf7d0', lfg:'#14532d'},  // Vert
+      {bg:'#7c3aed', lbg:'#e9d5ff', lfg:'#4c1d95'},  // Violet
+      {bg:'#c2410c', lbg:'#fed7aa', lfg:'#7c2d12'},  // Orange
+    ];
+
+    // Dimensions des nœuds
+    const RW=200, RH=64;   // Root
+    const MW=172, MH=56;   // Manager
+    const AW=166, AH=50;   // Agent
+    const COL_GAP = 20;    // Espace horizontal entre colonnes
+    const AG_GAP  = 8;     // Espace vertical entre agents
+
+    // Niveau 1 : managers directs de la racine
+    const managers = childMap[root.id] || [];
+    const numCols  = managers.length;
+
+    // Calculer la largeur de chaque colonne (= largeur du nœud le plus large de la colonne)
+    const colWidths = managers.map(() => Math.max(MW, AW)); // tous = AW = 166... utilisons MW
+    const totalW = numCols * MW + (numCols - 1) * COL_GAP;
+    const rootX  = Math.max(0, (totalW - RW) / 2);
+
+    // Root
+    const pRoot = posteM[root.posteId];
+    nodes.push({
+      id: root.id, x: rootX, y: 20, w: RW, h: RH,
+      label: `${root.prenom} ${root.nom}`,
+      sub:   pRoot ? pRoot.intitule : '',
+      bg: '#0f172a', fg: '#fff'
+    });
+
+    managers.forEach((mgr, bi) => {
+      const col = BCOL[bi % BCOL.length];
+      const mgrX = bi * (MW + COL_GAP);
+      const mgrY = 20 + RH + 30;
+      const pMgr = posteM[mgr.posteId];
+
+      nodes.push({
+        id: mgr.id, x: mgrX, y: mgrY, w: MW, h: MH,
+        label: `${mgr.prenom} ${mgr.nom}`,
+        sub:   pMgr ? pMgr.intitule : '',
+        bg: col.bg, fg: '#fff'
+      });
+      edges.push({id:`e_${root.id}_${mgr.id}`, from: root.id, to: mgr.id});
+
+      // Agents de ce manager
+      const agents = childMap[mgr.id] || [];
+      agents.forEach((ag, ai) => {
+        const pAg = posteM[ag.posteId];
+        const agX = mgrX + (MW - AW) / 2; // centré sous le manager
+        const agY = mgrY + MH + 20 + ai * (AH + AG_GAP);
+        const isPlaceholder = ag.prenom.includes('nommer') || ag.nom.includes('compléter') || ag.nom.includes('compléter');
+        nodes.push({
+          id: ag.id,
+          x: agX, y: agY, w: AW, h: AH,
+          label: isPlaceholder ? (ag.prenom) : `${ag.prenom} ${ag.nom}`,
+          sub:   pAg ? pAg.intitule : '',
+          bg: col.lbg, fg: col.lfg
+        });
+        edges.push({id:`e_${mgr.id}_${ag.id}`, from: mgr.id, to: ag.id});
+      });
+    });
+
+    this.nodes = nodes;
+    this.edges = edges;
+    this._save();
+    this._render();
+    this._hideEmpty();
     setTimeout(() => this.fitView(), 80);
   }
 
