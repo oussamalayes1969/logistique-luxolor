@@ -592,9 +592,12 @@ class OrgCanvas {
   generateFromEmployees() {
     // DATA peut venir de localStorage sans employes → on prend toujours APP_DATA comme référence
     const d = typeof DATA !== 'undefined' ? DATA : null;
-    const emps   = (d && d.employes && d.employes.length) ? d.employes : APP_DATA.employes;
-    const postes = (d && d.postes  && d.postes.length)   ? d.postes   : APP_DATA.postes;
-    if (!emps || !emps.length) { alert('Aucun employé trouvé dans les données.'); return; }
+    const allEmps  = (d && d.employes && d.employes.length) ? d.employes : APP_DATA.employes;
+    const postes   = (d && d.postes  && d.postes.length)   ? d.postes   : APP_DATA.postes;
+    // Filtrer par département courant (deptId absent = Luxolor legacy)
+    const deptId   = this.deptId;
+    const emps     = allEmps.filter(e => e.deptId === deptId || (!e.deptId && deptId === 'dept_logistique'));
+    if (!emps || !emps.length) { alert('Aucun employé trouvé pour ce département.'); return; }
     if (this.nodes.length && !confirm('Remplacer l\'organigramme actuel par la liste des équipes ?')) return;
     const posteM  = {};
     postes.forEach(p => posteM[p.id] = p);

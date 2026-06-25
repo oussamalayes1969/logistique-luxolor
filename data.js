@@ -15,6 +15,13 @@ const APP_DATA = {
       icone: "🏢",
       couleur: "#1d4ed8",
       secteur: "Distribution & Logistique"
+    },
+    {
+      id: "soc_elite",
+      nom: "ELITE",
+      icone: "🏭",
+      couleur: "#0f766e",
+      secteur: "Distribution & Logistique"
     }
   ],
 
@@ -26,6 +33,14 @@ const APP_DATA = {
       icone: "🏭",
       couleur: "#1d4ed8",
       description: "Dépôt Central & Vente en ligne"
+    },
+    {
+      id: "dept_elite_logistique",
+      societeId: "soc_elite",
+      nom: "Logistique",
+      icone: "🏭",
+      couleur: "#0f766e",
+      description: "Dépôt · Stock · Vente en ligne"
     }
   ],
 
@@ -195,7 +210,29 @@ const APP_DATA = {
     // ===== Branche 4 : Gestion des stocks =====
     { id: "emp_houcem", nom: "Charfi", prenom: "Houcem", photoUrl: "", posteId: "poste_gestionnaire_stock", managerId: "emp_directeur", email: "d.logistique@luxolor.com", telephone: "98137257", dateEntree: "2021-01-01" },
     { id: "emp_stock_agent_1", nom: "À compléter", prenom: "Agent stock 1", photoUrl: "", posteId: "poste_agent_gestion_stock", managerId: "emp_houcem", email: "", telephone: "", dateEntree: "" },
-    { id: "emp_stock_agent_2", nom: "À compléter", prenom: "Agent stock 2", photoUrl: "", posteId: "poste_agent_gestion_stock", managerId: "emp_houcem", email: "", telephone: "", dateEntree: "" }
+    { id: "emp_stock_agent_2", nom: "À compléter", prenom: "Agent stock 2", photoUrl: "", posteId: "poste_agent_gestion_stock", managerId: "emp_houcem", email: "", telephone: "", dateEntree: "" },
+
+    // ===== SOCIÉTÉ ELITE — Département Logistique =====
+    { id: "emp_elite_resp_log",   nom: "À nommer",  prenom: "Responsable Logistique", photoUrl: "", posteId: "poste_directeur_logistique",    managerId: null,               deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+
+    // Branche 1 : Dépôt (sous Hassen)
+    { id: "emp_elite_hassen",     nom: "Hassen",    prenom: "Responsable Dépôt",       photoUrl: "", posteId: "poste_resp_depot_central",       managerId: "emp_elite_resp_log", deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_elite_walid",      nom: "",          prenom: "Walid",                   photoUrl: "", posteId: "poste_agent_depot_central",      managerId: "emp_elite_hassen",  deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_elite_ali",        nom: "",          prenom: "Ali",                     photoUrl: "", posteId: "poste_agent_depot_central",      managerId: "emp_elite_hassen",  deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_elite_khaled",     nom: "",          prenom: "Khaled",                  photoUrl: "", posteId: "poste_agent_depot_central",      managerId: "emp_elite_hassen",  deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_elite_imed",       nom: "",          prenom: "Imed",                    photoUrl: "", posteId: "poste_agent_depot_central",      managerId: "emp_elite_hassen",  deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_elite_depot_5",    nom: "À nommer",  prenom: "Employé dépôt 5",         photoUrl: "", posteId: "poste_agent_depot_central",      managerId: "emp_elite_hassen",  deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_elite_depot_6",    nom: "À nommer",  prenom: "Employé dépôt 6",         photoUrl: "", posteId: "poste_agent_depot_central",      managerId: "emp_elite_hassen",  deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+
+    // Branche 2 : Stock
+    { id: "emp_elite_mohamedali", nom: "Ali",       prenom: "Mohamed",                 photoUrl: "", posteId: "poste_gestionnaire_stock",        managerId: "emp_elite_resp_log", deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+
+    // Branche 3 : Vente en ligne (sous Ibtissem)
+    { id: "emp_elite_ibtissem",   nom: "",          prenom: "Ibtissem",                photoUrl: "", posteId: "poste_resp_depot_vente_ligne",    managerId: "emp_elite_resp_log", deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_elite_adel",       nom: "",          prenom: "Adel",                    photoUrl: "", posteId: "poste_administratif",             managerId: "emp_elite_ibtissem", deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_elite_ichrak",     nom: "",          prenom: "Ichrak",                  photoUrl: "", posteId: "poste_agent_depot_vente_ligne",   managerId: "emp_elite_ibtissem", deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_elite_sonia",      nom: "",          prenom: "Sonia",                   photoUrl: "", posteId: "poste_agent_depot_vente_ligne",   managerId: "emp_elite_ibtissem", deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" },
+    { id: "emp_elite_nadia",      nom: "",          prenom: "Nadia",                   photoUrl: "", posteId: "poste_agent_depot_vente_ligne",   managerId: "emp_elite_ibtissem", deptId: "dept_elite_logistique", email: "", telephone: "", dateEntree: "" }
   ],
 
   fonctions: [

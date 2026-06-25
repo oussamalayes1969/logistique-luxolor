@@ -14,12 +14,13 @@ function loadData(){
   if(saved){
     try{
       const parsed = JSON.parse(saved);
-      if(!parsed.societes)           parsed.societes     = APP_DATA.societes;
-      if(!parsed.departements)       parsed.departements = APP_DATA.departements;
-      if(!parsed.employes  || !parsed.employes.length)   parsed.employes  = APP_DATA.employes;
-      if(!parsed.postes    || !parsed.postes.length)     parsed.postes    = APP_DATA.postes;
-      if(!parsed.fonctions || !parsed.fonctions.length)  parsed.fonctions = APP_DATA.fonctions;
-      // Migration : ajouter societeId aux départements existants
+      // Migration : merger APP_DATA sans écraser les données existantes
+      ['societes','departements','postes','employes','fonctions'].forEach(key=>{
+        if(!parsed[key]) parsed[key]=[];
+        APP_DATA[key].forEach(item=>{
+          if(!parsed[key].find(x=>x.id===item.id)) parsed[key].push(item);
+        });
+      });
       parsed.departements.forEach(d=>{ if(!d.societeId) d.societeId = "soc_luxolor"; });
       return parsed;
     }catch(e){ console.warn("Données locales invalides, fallback sur data.js"); }
