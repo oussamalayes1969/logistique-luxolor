@@ -52,7 +52,11 @@ function saveData(){
 
 // ─── Getters globaux ───
 function getPoste(id){ return DATA.postes.find(p=>p.id===id); }
-function getEmploye(id){ return DATA.employes.find(e=>e.id===id); }
+function getEmploye(id){
+  let emp = DATA.employes.find(e=>e.id===id);
+  if(!emp) emp = APP_DATA.employes.find(e=>e.id===id); // fallback data.js
+  return emp || null;
+}
 function getFonction(id){ return DATA.fonctions.find(f=>f.id===id); }
 function getDept(id)    { return (DATA.departements||[]).find(d=>d.id===id); }
 function getSociete(id) { return (DATA.societes||[]).find(s=>s.id===id); }

@@ -377,13 +377,9 @@ class OrgCanvas {
     if (!this.readOnly) {
       this._openSB(id);
     }
-    // Ouvrir la fiche employé si le nœud correspond à un employé
+    // Ouvrir la fiche employé (openEmployeDetail vérifie elle-même si l'ID existe)
     if (typeof openEmployeDetail === 'function') {
-      const d = typeof DATA !== 'undefined' ? DATA : null;
-      const emps = (d && d.employes) ? d.employes : (APP_DATA ? APP_DATA.employes : []);
-      if (emps && emps.find(e => e.id === id)) {
-        openEmployeDetail(id);
-      }
+      openEmployeDetail(id);
     }
   }
   _selEl(el) {
@@ -412,12 +408,8 @@ class OrgCanvas {
     document.getElementById(`${p}SBTW`).style.outline = isW  ? '2px solid #fbbf24' : 'none';
     document.getElementById(`${p}SBTD`).style.outline = !isW ? '2px solid #fbbf24' : 'none';
     this._tcChoice = nd.fg || '#ffffff';
-    // Afficher/cacher le bouton fiche selon si l'ID correspond à un employé
-    const d = typeof DATA !== 'undefined' ? DATA : null;
-    const emps = (d && d.employes) ? d.employes : (typeof APP_DATA !== 'undefined' ? APP_DATA.employes : []);
-    const isEmp = !!(emps && emps.find(e => e.id === id));
     const ficheBtn = document.getElementById(`${p}SBFiche`);
-    if (ficheBtn) ficheBtn.style.display = isEmp ? 'block' : 'none';
+    if (ficheBtn) ficheBtn.style.display = 'block';
   }
   _closeSB() {
     document.getElementById(`${this.p}SB`)?.style &&
