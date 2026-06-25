@@ -292,40 +292,30 @@ main{padding:16px 24px;max-width:100%;margin:0;}
   box-shadow:0 6px 24px rgba(251,191,36,.4);
 }
 
-/* ── Poignées de resize custom ── */
-.oc-rh{
-  position:absolute;
-  background:rgba(255,255,255,.55);
-  border-radius:3px;
-  transition:background .1s, opacity .1s;
-  opacity:0;
-}
-.oc-node:hover .oc-rh{ opacity:1; }
-/* Coin bas-droite — resize diagonal */
-.oc-rh-se{
-  width:14px; height:14px;
-  bottom:2px; right:2px;
-  cursor:se-resize;
-  background:rgba(255,255,255,.7);
-  border-radius:0 0 8px 0;
-  display:flex; align-items:center; justify-content:center;
-}
-.oc-rh-se::after{ content:'⤡'; font-size:.7rem; color:rgba(0,0,0,.5); pointer-events:none; }
-/* Bord droit — resize horizontal */
+/* ── Poignée de largeur (bord droit) ── */
 .oc-rh-e{
-  width:6px;
-  top:20%; bottom:20%;
-  right:0;
+  position:absolute;
+  top:0; bottom:0; right:0;
+  width:8px;
   cursor:ew-resize;
-  border-radius:0 4px 4px 0;
+  background:rgba(255,255,255,.0);
+  border-radius:0 10px 10px 0;
+  transition:background .15s;
+  z-index:2;
 }
-/* Bord bas — resize vertical */
-.oc-rh-s{
-  height:6px;
-  left:20%; right:20%;
-  bottom:0;
-  cursor:ns-resize;
-  border-radius:0 0 4px 4px;
+.oc-node:hover .oc-rh-e{
+  background:rgba(255,255,255,.35);
+}
+/* Ligne indicatrice au centre */
+.oc-rh-e::after{
+  content:'';
+  position:absolute;
+  top:25%; bottom:25%;
+  left:50%;
+  width:2px;
+  margin-left:-1px;
+  background:rgba(255,255,255,.7);
+  border-radius:2px;
 }
 
 .oc-nlbl{

@@ -274,7 +274,10 @@ class OrgCanvas {
       const a = this.nodes.find(n => n.id === e.from);
       const b = this.nodes.find(n => n.id === e.to);
       if (!a || !b) return;
-      const x1=a.x+a.w/2, y1=a.y+a.h, x2=b.x+b.w/2, y2=b.y;
+      // Lire la hauteur réelle du DOM (auto-height)
+      const ha = document.getElementById(`oc_${a.id}`)?.offsetHeight || a.h || 60;
+      const hb = document.getElementById(`oc_${b.id}`)?.offsetHeight || b.h || 60;
+      const x1=a.x+a.w/2, y1=a.y+ha, x2=b.x+b.w/2, y2=b.y;
       const cy=(y1+y2)/2;
       const path = document.createElementNS('http://www.w3.org/2000/svg','path');
       path.setAttribute('d',`M${x1},${y1} C${x1},${cy} ${x2},${cy} ${x2},${y2}`);
@@ -299,15 +302,14 @@ class OrgCanvas {
     const el = document.createElement('div');
     el.className = 'oc-node';
     el.id = `oc_${node.id}`;
-    el.style.cssText = `left:${node.x}px;top:${node.y}px;width:${node.w}px;height:${node.h}px;background:${node.bg||'#1d4ed8'};color:${node.fg||'#fff'};`;
+    // height:auto — le nœud s'ajuste au contenu, largeur fixée par node.w
+    el.style.cssText = `left:${node.x}px;top:${node.y}px;width:${node.w}px;background:${node.bg||'#1d4ed8'};color:${node.fg||'#fff'};`;
 
     el.innerHTML = `
       <div class="oc-nlbl" id="oL_${node.id}">${node.label||''}</div>
       <div class="oc-nsub" id="oS_${node.id}">${node.sub||''}</div>
       ${this.readOnly?'':`<span class="oc-del" title="Supprimer">✕</span>
-      <div class="oc-rh oc-rh-se" data-dir="se"></div>
-      <div class="oc-rh oc-rh-e"  data-dir="e"></div>
-      <div class="oc-rh oc-rh-s"  data-dir="s"></div>`}`;
+      <div class="oc-rh oc-rh-e" data-dir="e" title="Glisser pour changer la largeur"></div>`}`;
 
     // Suppression
     if (!this.readOnly) {
@@ -316,15 +318,11 @@ class OrgCanvas {
         if (confirm('Supprimer ce nœud ?')) this._removeNode(node.id);
       });
 
-      // Poignées de resize custom (corrigent le zoom)
-      el.querySelectorAll('.oc-rh').forEach(rh => {
-        rh.addEventListener('mousedown', e => {
-          e.stopPropagation(); e.preventDefault();
-          this._resize = {id: node.id, dir: rh.dataset.dir,
-            ox: e.clientX, oy: e.clientY, w0: node.w, h0: node.h};
-          this.stage.style.cursor = rh.dataset.dir === 'e' ? 'ew-resize'
-                                  : rh.dataset.dir === 's' ? 'ns-resize' : 'se-resize';
-        });
+      // Poignée de largeur (bord droit) — corrigée pour le zoom
+      el.querySelector('.oc-rh-e')?.addEventListener('mousedown', e => {
+        e.stopPropagation(); e.preventDefault();
+        this._resize = {id: node.id, ox: e.clientX, w0: node.w};
+        this.stage.style.cursor = 'ew-resize';
       });
     }
 
@@ -471,12 +469,9 @@ class OrgCanvas {
     if (this._resize) {
       const nd = this.nodes.find(n => n.id === this._resize.id);
       if (!nd) return;
-      const dx = (e.clientX - this._resize.ox) / this.zoom;
-      const dy = (e.clientY - this._resize.oy) / this.zoom;
-      if (this._resize.dir !== 's') nd.w = Math.max(120, Math.round(this._resize.w0 + dx));
-      if (this._resize.dir !== 'e') nd.h = Math.max(50,  Math.round(this._resize.h0 + dy));
+      nd.w = Math.max(120, Math.round(this._resize.w0 + (e.clientX - this._resize.ox) / this.zoom));
       const el = document.getElementById(`oc_${nd.id}`);
-      if (el) { el.style.width = nd.w+'px'; el.style.height = nd.h+'px'; }
+      if (el) el.style.width = nd.w + 'px';
       this._drawEdges(); return;
     }
     if (this._drag) {
