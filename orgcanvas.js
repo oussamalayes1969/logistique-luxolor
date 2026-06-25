@@ -508,7 +508,7 @@ class OrgCanvas {
     const pad=60, W=this.stage.offsetWidth||800, H=this.stage.offsetHeight||500;
     const minX=Math.min(...this.nodes.map(n=>n.x)), minY=Math.min(...this.nodes.map(n=>n.y));
     const maxX=Math.max(...this.nodes.map(n=>n.x+n.w)), maxY=Math.max(...this.nodes.map(n=>n.y+n.h));
-    this.zoom = Math.min(1.6, Math.min((W-pad*2)/(maxX-minX||1), (H-pad*2)/(maxY-minY||1)));
+    this.zoom = Math.min(1.4, Math.max(0.15, Math.min((W-pad*2)/(maxX-minX||1), (H-pad*2)/(maxY-minY||1))));
     this.tx = pad - minX*this.zoom;
     this.ty = pad - minY*this.zoom;
     this._tf();
@@ -615,26 +615,34 @@ class OrgCanvas {
 
     // Couleurs par branche
     const BCOL = [
-      {bg:'#1d4ed8', lbg:'#bfdbfe', lfg:'#1e3a8a'},  // Bleu
-      {bg:'#15803d', lbg:'#bbf7d0', lfg:'#14532d'},  // Vert
-      {bg:'#7c3aed', lbg:'#e9d5ff', lfg:'#4c1d95'},  // Violet
-      {bg:'#c2410c', lbg:'#fed7aa', lfg:'#7c2d12'},  // Orange
+      {bg:'#1d4ed8', lbg:'#bfdbfe', lfg:'#1e3a8a'},
+      {bg:'#15803d', lbg:'#bbf7d0', lfg:'#14532d'},
+      {bg:'#7c3aed', lbg:'#e9d5ff', lfg:'#4c1d95'},
+      {bg:'#c2410c', lbg:'#fed7aa', lfg:'#7c2d12'},
     ];
 
     // Dimensions des nœuds
-    const RW=200, RH=64;   // Root
-    const MW=172, MH=56;   // Manager
-    const AW=166, AH=50;   // Agent
-    const COL_GAP = 20;    // Espace horizontal entre colonnes
-    const AG_GAP  = 8;     // Espace vertical entre agents
+    const RH=64, RW=200;
+    const MH=56, MW=160;
+    const AH=50, AW=152;
+    const PER_ROW  = 2;    // agents par rangée dans chaque branche
+    const AG_H_GAP = 10;   // espace horizontal entre agents
+    const AG_V_GAP = 8;    // espace vertical entre rangées
+    const BRANCH_GAP = 24; // espace entre branches
 
-    // Niveau 1 : managers directs de la racine
+    // Largeur d'une branche = PER_ROW agents côte à côte
+    const branchW = PER_ROW * AW + (PER_ROW - 1) * AG_H_GAP; // 152+10+152 = 314
+
     const managers = childMap[root.id] || [];
-    const numCols  = managers.length;
 
-    // Calculer la largeur de chaque colonne (= largeur du nœud le plus large de la colonne)
-    const colWidths = managers.map(() => Math.max(MW, AW)); // tous = AW = 166... utilisons MW
-    const totalW = numCols * MW + (numCols - 1) * COL_GAP;
+    // Calculer la position X de départ de chaque branche
+    const branchX = [];
+    let curX = 0;
+    managers.forEach((mgr, bi) => {
+      branchX.push(curX);
+      curX += branchW + BRANCH_GAP;
+    });
+    const totalW = curX - BRANCH_GAP;
     const rootX  = Math.max(0, (totalW - RW) / 2);
 
     // Root
@@ -646,11 +654,13 @@ class OrgCanvas {
       bg: '#0f172a', fg: '#fff'
     });
 
+    const mgrY = 20 + RH + 36;
+
     managers.forEach((mgr, bi) => {
-      const col = BCOL[bi % BCOL.length];
-      const mgrX = bi * (MW + COL_GAP);
-      const mgrY = 20 + RH + 30;
-      const pMgr = posteM[mgr.posteId];
+      const col   = BCOL[bi % BCOL.length];
+      const bx    = branchX[bi];
+      const mgrX  = bx + (branchW - MW) / 2;   // manager centré sur la branche
+      const pMgr  = posteM[mgr.posteId];
 
       nodes.push({
         id: mgr.id, x: mgrX, y: mgrY, w: MW, h: MH,
@@ -660,17 +670,21 @@ class OrgCanvas {
       });
       edges.push({id:`e_${root.id}_${mgr.id}`, from: root.id, to: mgr.id});
 
-      // Agents de ce manager
+      // Agents : PER_ROW par rangée
       const agents = childMap[mgr.id] || [];
+      const agStartY = mgrY + MH + 20;
+
       agents.forEach((ag, ai) => {
-        const pAg = posteM[ag.posteId];
-        const agX = mgrX + (MW - AW) / 2; // centré sous le manager
-        const agY = mgrY + MH + 20 + ai * (AH + AG_GAP);
-        const isPlaceholder = ag.prenom.includes('nommer') || ag.nom.includes('compléter') || ag.nom.includes('compléter');
+        const agCol = ai % PER_ROW;
+        const agRow = Math.floor(ai / PER_ROW);
+        const pAg   = posteM[ag.posteId];
+        const agX   = bx + agCol * (AW + AG_H_GAP);
+        const agY   = agStartY + agRow * (AH + AG_V_GAP);
+        const isPlaceholder = ag.prenom.includes('nommer') || ag.nom.includes('compléter');
         nodes.push({
           id: ag.id,
           x: agX, y: agY, w: AW, h: AH,
-          label: isPlaceholder ? (ag.prenom) : `${ag.prenom} ${ag.nom}`,
+          label: isPlaceholder ? ag.prenom : `${ag.prenom} ${ag.nom}`,
           sub:   pAg ? pAg.intitule : '',
           bg: col.lbg, fg: col.lfg
         });
