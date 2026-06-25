@@ -12,10 +12,9 @@
     window.location.replace(window.location.pathname + '?fresh=' + Date.now());
   }
 </script>
-
-<!-- OrgChart.js (MIT, gratuit) — fichiers locaux pour fiabilité -->
-<link rel="stylesheet" href="orgchart.min.css">
-<link rel="stylesheet" href="style.css?v=20260625f">
+<!-- GoJS — moteur d'organigramme interactif (production) -->
+<script src="https://unpkg.com/gojs/release/go.js"></script>
+<link rel="stylesheet" href="style.css?v=20260625g">
 </head>
 <body>
 
@@ -27,9 +26,9 @@
   <button id="editToggle" class="edit-toggle">Mode édition</button>
 </header>
 
-<!-- Barre de sélection de société -->
+<!-- Barre société -->
 <div id="societeBar" class="societe-bar"></div>
-<!-- Barre de sélection de département -->
+<!-- Barre département -->
 <div id="deptBar" class="dept-bar"></div>
 
 <nav class="tabs">
@@ -42,14 +41,12 @@
 
   <!-- ORGANIGRAMME -->
   <section id="organigramme" class="tab-panel active">
-    <!-- Toolbar global (Export + Reset) -->
     <div class="toolbar" style="padding:8px 14px;">
       <span style="flex:1"></span>
       <button id="addEmployeBtn" class="btn" style="display:none;">+ Ajouter un employé</button>
       <button id="exportBtn" class="btn secondary">Exporter data.js</button>
       <button id="resetBtn" class="btn secondary">Réinitialiser</button>
     </div>
-    <!-- Canvas OrgChart — rempli dynamiquement par OrgCanvas -->
     <div id="org-wrap">
       <div id="orgTreeContainer"></div>
     </div>
@@ -83,14 +80,12 @@
     <div class="modal-actions" id="employeDetailActions"></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="employeFormModal">
   <div class="modal">
     <button class="close-btn">✕</button>
     <div id="employeFormBody"></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="posteDetailModal">
   <div class="modal">
     <button class="close-btn">✕</button>
@@ -98,14 +93,12 @@
     <div class="modal-actions" id="posteDetailActions"></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="posteFormModal">
   <div class="modal">
     <button class="close-btn">✕</button>
     <div id="posteFormBody"></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="fonctionDetailModal">
   <div class="modal">
     <button class="close-btn">✕</button>
@@ -113,7 +106,6 @@
     <div class="modal-actions" id="fonctionDetailActions"></div>
   </div>
 </div>
-
 <div class="modal-overlay" id="fonctionFormModal">
   <div class="modal">
     <button class="close-btn">✕</button>
@@ -121,8 +113,8 @@
   </div>
 </div>
 
-<script src="data.js?v=20260625f"></script>
-<script src="orgcanvas.js?v=20260625f"></script>
-<script src="app.js?v=20260625f"></script>
+<script src="data.js?v=20260625g"></script>
+<script src="orgcanvas.js?v=20260625g"></script>
+<script src="app.js?v=20260625g"></script>
 </body>
 </html>
