@@ -1,22 +1,27 @@
 // =========================================================
-// DONNÉES DE L'APPLICATION — Luxolor (Multi-Départements)
+// DONNÉES DE L'APPLICATION — Multi-Sociétés / Multi-Départements
 // =========================================================
 
-// Structure globale : société > départements > données
-const SOCIETE = {
-  nom: "Luxolor",
-  logo: "",
-  couleur: "#1d4ed8"
-};
-
-// Département actif (modifié par l'UI)
-let currentDeptId = "dept_logistique";
+// ─── État global (modifié par l'UI) ───
+let currentSocieteId = "soc_luxolor";
+let currentDeptId    = "dept_logistique";
 
 const APP_DATA = {
+
+  societes: [
+    {
+      id: "soc_luxolor",
+      nom: "Luxolor",
+      icone: "🏢",
+      couleur: "#1d4ed8",
+      secteur: "Distribution & Logistique"
+    }
+  ],
 
   departements: [
     {
       id: "dept_logistique",
+      societeId: "soc_luxolor",
       nom: "Logistique",
       icone: "🏭",
       couleur: "#1d4ed8",

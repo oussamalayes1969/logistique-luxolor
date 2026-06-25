@@ -43,6 +43,43 @@ header.topbar .sub{font-size:.85rem;opacity:.9;}
 }
 .edit-toggle.active{background:#fff;color:var(--primary);font-weight:600;}
 
+/* ===== Barre sociétés ===== */
+.societe-bar{
+  background:#1e293b;
+  padding:7px 20px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.bar-label{
+  font-size:.75rem;
+  color:#94a3b8;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  margin-right:4px;
+  white-space:nowrap;
+}
+.soc-btn{
+  border:1px solid #475569;
+  background:transparent;
+  color:#cbd5e1;
+  padding:5px 14px;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:.83rem;
+  font-weight:500;
+  transition:all .15s;
+}
+.soc-btn:hover{ border-color:#93c5fd; color:#fff; }
+.soc-btn.active{ font-weight:700; }
+.soc-btn.add-soc{
+  border:1px dashed #60a5fa;
+  color:#60a5fa;
+  background:none;
+}
+
 /* ===== Barre départements ===== */
 .dept-bar{
   background:#fff;

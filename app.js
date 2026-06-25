@@ -14,8 +14,10 @@ function loadData(){
   if(saved){
     try{
       const parsed = JSON.parse(saved);
-      // Migration : ajouter departements si absent
+      if(!parsed.societes)     parsed.societes     = APP_DATA.societes;
       if(!parsed.departements) parsed.departements = APP_DATA.departements;
+      // Migration : ajouter societeId aux départements existants
+      parsed.departements.forEach(d=>{ if(!d.societeId) d.societeId = "soc_luxolor"; });
       return parsed;
     }catch(e){ console.warn("Données locales invalides, fallback sur data.js"); }
   }
@@ -30,9 +32,11 @@ function saveData(){
 function getPoste(id){ return DATA.postes.find(p=>p.id===id); }
 function getEmploye(id){ return DATA.employes.find(e=>e.id===id); }
 function getFonction(id){ return DATA.fonctions.find(f=>f.id===id); }
-function getDept(id){ return (DATA.departements||[]).find(d=>d.id===id); }
+function getDept(id)    { return (DATA.departements||[]).find(d=>d.id===id); }
+function getSociete(id) { return (DATA.societes||[]).find(s=>s.id===id); }
 
-// ─── Filtres par département ───
+// ─── Filtres par société puis département ───
+function socDepts()     { return (DATA.departements||[]).filter(d=>(!d.societeId)||d.societeId===currentSocieteId); }
 function deptPostes()   { return DATA.postes.filter(p=>(!p.deptId)||p.deptId===currentDeptId); }
 function deptEmployes() { return DATA.employes.filter(e=>(!e.deptId)||e.deptId===currentDeptId); }
 function deptFonctions(){ return DATA.fonctions.filter(f=>(!f.deptId)||f.deptId===currentDeptId); }
@@ -57,32 +61,121 @@ document.addEventListener("DOMContentLoaded", () => {
     o.addEventListener("click", e=>{ if(e.target===o) closeAllModals(); });
   });
 
+  renderSocieteBar();
   renderDeptBar();
   renderAll();
 });
 
 // =========================================================
+// SOCIÉTÉS
+// =========================================================
+function renderSocieteBar(){
+  const societes = DATA.societes || [];
+  const bar = document.getElementById("societeBar");
+  if(!bar) return;
+  bar.innerHTML = `<span class="bar-label">Société :</span>` +
+    societes.map(s=>`
+      <button class="soc-btn ${s.id===currentSocieteId?'active':''}"
+        onclick="switchSociete('${s.id}')"
+        style="${s.id===currentSocieteId?`background:${s.couleur||'#1d4ed8'};color:#fff;border-color:${s.couleur||'#1d4ed8'}`:''}">
+        ${s.icone||'🏢'} ${s.nom}
+      </button>
+    `).join('') +
+    (editMode ? `<button class="soc-btn add-soc" onclick="openSocieteForm(null)">+ Société</button>` : '');
+}
+
+function switchSociete(socId){
+  currentSocieteId = socId;
+  // Sélectionner automatiquement le premier département de cette société
+  const depts = socDepts();
+  currentDeptId = depts.length ? depts[0].id : null;
+  updateHeader();
+  renderSocieteBar();
+  renderDeptBar();
+  renderAll();
+}
+
+function updateHeader(){
+  const soc  = getSociete(currentSocieteId);
+  const dept = getDept(currentDeptId);
+  const h1   = document.querySelector('header h1');
+  const sub  = document.querySelector('header .sub');
+  if(h1)  h1.textContent  = `🏢 ${soc ? soc.nom : 'Plateforme'} — Gestion des Départements`;
+  if(sub) sub.textContent = dept ? `${dept.icone||''} ${dept.nom}${dept.description?' · '+dept.description:''}` : '';
+}
+
+function openSocieteForm(socId){
+  const soc = socId ? getSociete(socId) : null;
+  const body = document.getElementById("employeFormBody");
+  body.innerHTML = `
+    <h2>${soc?'Modifier':'Créer'} une société</h2>
+    <div class="field-row"><label>Nom *</label>
+      <input id="sf_nom" value="${soc?soc.nom:''}" placeholder="Ex: Luxolor, Filiale Sud..."></div>
+    <div class="field-row"><label>Icône (emoji)</label>
+      <input id="sf_icone" value="${soc?soc.icone:'🏢'}" style="width:80px;font-size:1.4rem;text-align:center"></div>
+    <div class="field-row"><label>Couleur</label>
+      <input id="sf_couleur" type="color" value="${soc?soc.couleur:'#1d4ed8'}" style="width:60px;height:36px;cursor:pointer"></div>
+    <div class="field-row"><label>Secteur d'activité</label>
+      <input id="sf_secteur" value="${soc?soc.secteur||'':''}" placeholder="Ex: Distribution, Industrie, Services..."></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="saveSocieteForm('${socId||''}')">Enregistrer</button>
+      <button class="btn secondary" onclick="closeAllModals()">Annuler</button>
+      ${socId && DATA.societes.length>1 ? `<button class="btn danger" onclick="deleteSociete('${socId}')">Supprimer</button>` : ''}
+    </div>
+  `;
+  openModal("employeFormModal");
+}
+
+function saveSocieteForm(socId){
+  if(!DATA.societes) DATA.societes = [];
+  const data = {
+    nom:     document.getElementById("sf_nom").value.trim(),
+    icone:   document.getElementById("sf_icone").value.trim(),
+    couleur: document.getElementById("sf_couleur").value,
+    secteur: document.getElementById("sf_secteur").value.trim()
+  };
+  if(!data.nom){ alert("Le nom est obligatoire."); return; }
+  if(socId){
+    Object.assign(getSociete(socId), data);
+  } else {
+    data.id = "soc_" + Date.now();
+    DATA.societes.push(data);
+    currentSocieteId = data.id;
+    currentDeptId = null;
+  }
+  saveData(); closeAllModals(); renderSocieteBar(); updateHeader(); renderDeptBar(); renderAll();
+}
+
+function deleteSociete(socId){
+  if(!confirm("Supprimer cette société ? Ses départements et données resteront mais ne seront plus accessibles.")) return;
+  DATA.societes = DATA.societes.filter(s=>s.id!==socId);
+  currentSocieteId = DATA.societes[0]?.id;
+  const depts = socDepts();
+  currentDeptId = depts[0]?.id || null;
+  saveData(); closeAllModals(); renderSocieteBar(); updateHeader(); renderDeptBar(); renderAll();
+}
+
+// =========================================================
 // DÉPARTEMENTS
 // =========================================================
 function renderDeptBar(){
-  const depts = DATA.departements || [];
+  const depts = socDepts();
   const bar = document.getElementById("deptBar");
   if(!bar) return;
-  bar.innerHTML = depts.map(d=>`
-    <button class="dept-btn ${d.id===currentDeptId?'active':''}"
-      onclick="switchDept('${d.id}')"
-      style="${d.id===currentDeptId?`background:${d.couleur||'#1d4ed8'};color:#fff;border-color:${d.couleur||'#1d4ed8'}`:''}">
-      ${d.icone||'🏢'} ${d.nom}
-    </button>
-  `).join('') + (editMode ? `<button class="dept-btn add-dept" onclick="openDeptForm(null)">+ Département</button>` : '');
+  bar.innerHTML = `<span class="bar-label">Département :</span>` +
+    depts.map(d=>`
+      <button class="dept-btn ${d.id===currentDeptId?'active':''}"
+        onclick="switchDept('${d.id}')"
+        style="${d.id===currentDeptId?`background:${d.couleur||'#1d4ed8'};color:#fff;border-color:${d.couleur||'#1d4ed8'}`:''}">
+        ${d.icone||'🏢'} ${d.nom}
+      </button>
+    `).join('') +
+    (editMode ? `<button class="dept-btn add-dept" onclick="openDeptForm(null)">+ Département</button>` : '');
 }
 
 function switchDept(deptId){
   currentDeptId = deptId;
-  const dept = getDept(deptId);
-  // Met à jour le sous-titre de l'en-tête
-  const sub = document.querySelector('header .sub');
-  if(sub && dept) sub.textContent = `Luxolor — ${dept.nom}${dept.description?' · '+dept.description:''}`;
+  updateHeader();
   renderDeptBar();
   renderAll();
 }
@@ -122,10 +215,11 @@ function saveDeptForm(deptId){
     Object.assign(getDept(deptId), data);
   } else {
     data.id = "dept_" + Date.now();
+    data.societeId = currentSocieteId;
     DATA.departements.push(data);
     currentDeptId = data.id;
   }
-  saveData(); closeAllModals(); renderDeptBar(); renderAll();
+  saveData(); closeAllModals(); updateHeader(); renderDeptBar(); renderAll();
 }
 
 function deleteDept(deptId){
