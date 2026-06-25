@@ -588,13 +588,12 @@ class OrgCanvas {
 
   // ── Générer l'organigramme depuis les données employés ───────
   generateFromEmployees() {
-    if (!window.DATA || !window.DATA.employes) {
-      alert('Données employés non disponibles.'); return;
-    }
+    const src = typeof DATA !== 'undefined' ? DATA : (typeof APP_DATA !== 'undefined' ? APP_DATA : null);
+    if (!src || !src.employes) { alert('Données employés non disponibles.'); return; }
     if (this.nodes.length && !confirm('Remplacer l\'organigramme actuel par la liste des équipes ?')) return;
 
-    const emps    = window.DATA.employes;
-    const postes  = window.DATA.postes || [];
+    const emps    = src.employes;
+    const postes  = src.postes || [];
     const posteM  = {};
     postes.forEach(p => posteM[p.id] = p);
 
