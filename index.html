@@ -15,7 +15,7 @@
 
 <!-- OrgChart.js (MIT, gratuit) — fichiers locaux pour fiabilité -->
 <link rel="stylesheet" href="orgchart.min.css">
-<link rel="stylesheet" href="style.css?v=20260625c">
+<link rel="stylesheet" href="style.css?v=20260625d">
 </head>
 <body>
 
@@ -42,31 +42,14 @@
 
   <!-- ORGANIGRAMME -->
   <section id="organigramme" class="tab-panel active">
-    <div class="toolbar">
-
-      <!-- Thèmes couleurs -->
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="color:var(--muted);font-size:.82rem;">Thème :</span>
-        <div class="theme-dot active" style="background:#1d4ed8" onclick="setOrgTheme('blue',this)" title="Bleu"></div>
-        <div class="theme-dot" style="background:#15803d" onclick="setOrgTheme('green',this)" title="Vert"></div>
-        <div class="theme-dot" style="background:#7c3aed" onclick="setOrgTheme('purple',this)" title="Violet"></div>
-        <div class="theme-dot" style="background:#ea580c" onclick="setOrgTheme('orange',this)" title="Orange"></div>
-        <div class="theme-dot" style="background:#1e293b" onclick="setOrgTheme('dark',this)" title="Sombre"></div>
-      </div>
-
-      <!-- Info édition -->
-      <span id="editHint" style="color:var(--muted);font-size:.8rem;display:none;">
-        ✥ Glissez les cartes · Double-clic pour éditer · Clic pour la fiche
-      </span>
-
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button id="addEmployeBtn" class="btn" style="display:none;">+ Ajouter un employé</button>
-        <button id="exportBtn" class="btn secondary">Exporter data.js</button>
-        <button id="resetBtn" class="btn secondary">Réinitialiser</button>
-      </div>
+    <!-- Toolbar global (Export + Reset) -->
+    <div class="toolbar" style="padding:8px 14px;">
+      <span style="flex:1"></span>
+      <button id="addEmployeBtn" class="btn" style="display:none;">+ Ajouter un employé</button>
+      <button id="exportBtn" class="btn secondary">Exporter data.js</button>
+      <button id="resetBtn" class="btn secondary">Réinitialiser</button>
     </div>
-
-    <!-- Conteneur OrgChart.js -->
+    <!-- Canvas OrgChart — rempli dynamiquement par OrgCanvas -->
     <div id="org-wrap">
       <div id="orgTreeContainer"></div>
     </div>
@@ -138,8 +121,8 @@
   </div>
 </div>
 
-<script src="data.js?v=20260625c"></script>
-<script src="orgcanvas.js?v=20260625c"></script>
-<script src="app.js?v=20260625c"></script>
+<script src="data.js?v=20260625d"></script>
+<script src="orgcanvas.js?v=20260625d"></script>
+<script src="app.js?v=20260625d"></script>
 </body>
 </html>

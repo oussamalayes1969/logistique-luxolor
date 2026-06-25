@@ -138,7 +138,8 @@ main{padding:16px 24px;max-width:100%;margin:0;}
 /* ===== Conteneur organigramme ===== */
 #org-wrap{
   width:100%;
-  height:calc(100vh - 210px);
+  height:calc(100vh - 220px);
+  min-height:420px;
   background:var(--bg);
   border-radius:var(--radius);
   border:1px solid var(--border);
@@ -150,6 +151,7 @@ main{padding:16px 24px;max-width:100%;margin:0;}
   flex:1;
   position:relative;
   overflow:hidden;
+  min-height:380px;
 }
 
 /* ===== OrgCanvas engine ===== */
@@ -161,34 +163,39 @@ main{padding:16px 24px;max-width:100%;margin:0;}
   background:#fff;
   border-bottom:1px solid var(--border);
   flex-wrap:wrap;
+  flex-shrink:0;
 }
 .oc-tbtn{ padding:6px 12px !important; font-size:.82rem !important; }
+.oc-hint{ font-size:.76rem; color:var(--muted); }
 
 .oc-stage{
   position:absolute;
   inset:0;
   overflow:hidden;
-  background:
-    radial-gradient(circle, #cbd5e1 1px, transparent 1px);
-  background-size:28px 28px;
   background-color:#f8fafc;
+  background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+  background-size:28px 28px;
   cursor:default;
 }
 
+/* Conteneur transformé (pan/zoom) */
 .oc-inner{
   position:absolute;
   top:0; left:0;
   transform-origin:0 0;
+  /* assez grand pour contenir tous les nœuds */
+  width:4000px; height:3000px;
 }
 
 .oc-svg{
   position:absolute;
   top:0; left:0;
-  width:4000px; height:3000px;
+  width:100%; height:100%;
   pointer-events:none;
   overflow:visible;
 }
-.oc-svg path, .oc-svg line{ pointer-events:stroke; }
+.oc-svg path{ pointer-events:stroke; }
+.oc-svg line{ pointer-events:none; }
 
 /* ── Nœud ── */
 .oc-node{
