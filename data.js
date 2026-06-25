@@ -141,7 +141,7 @@ const APP_DATA = {
   ],
 
   employes: [
-    { id: "emp_directeur", nom: "À nommer", prenom: "Directeur Logistique", photoUrl: "", posteId: "poste_directeur_logistique", managerId: null, email: "", telephone: "", dateEntree: "" },
+    { id: "emp_directeur", nom: "Layes", prenom: "Oussama", photoUrl: "", posteId: "poste_directeur_logistique", managerId: null, email: "managers.retail@luxolor.com", telephone: "", dateEntree: "" },
 
     // ===== Branche 1 : Dépôt Central =====
     { id: "emp_zied", nom: "Graf", prenom: "Zied", photoUrl: "", posteId: "poste_resp_depot_central", managerId: "emp_directeur", email: "depot@luxolor.com", telephone: "98167949", dateEntree: "2018-01-01" },
