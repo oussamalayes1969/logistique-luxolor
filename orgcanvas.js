@@ -170,6 +170,7 @@ class OrgCanvas {
               <button id="${p}SBTD" style="flex:1;padding:6px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#1e293b;cursor:pointer">Sombre</button>
             </div>
             <button class="btn" id="${p}SBOk" style="width:100%;margin-bottom:8px">✓ Appliquer</button>
+            <button class="btn secondary" id="${p}SBFiche" style="width:100%;margin-bottom:8px">👤 Voir fiche employé</button>
             <button class="btn danger" id="${p}SBDel" style="width:100%">🗑 Supprimer</button>
           </div>
         </div>
@@ -191,11 +192,14 @@ class OrgCanvas {
       this._on(`${p}EAdd`, 'click', () => this.addNode());
       this._on(`${p}ETpl`, 'click', () => this.openTemplates());
       // Sidebar
-      this._on(`${p}SBX`,  'click', () => this._closeSB());
-      this._on(`${p}SBOk`, 'click', () => this._applySB());
-      this._on(`${p}SBDel`,'click', () => this._deleteSel());
-      this._on(`${p}SBTW`, 'click', () => this._setTC('SBTW','#ffffff'));
-      this._on(`${p}SBTD`, 'click', () => this._setTC('SBTD','#1e293b'));
+      this._on(`${p}SBX`,    'click', () => this._closeSB());
+      this._on(`${p}SBOk`,  'click', () => this._applySB());
+      this._on(`${p}SBDel`, 'click', () => this._deleteSel());
+      this._on(`${p}SBTW`,  'click', () => this._setTC('SBTW','#ffffff'));
+      this._on(`${p}SBTD`,  'click', () => this._setTC('SBTD','#1e293b'));
+      this._on(`${p}SBFiche`,'click', () => {
+        if (this.sel && typeof openEmployeDetail === 'function') openEmployeDetail(this.sel);
+      });
     }
 
     // ── Stage events — clic sur fond vide = déplacer la vue ──
@@ -370,7 +374,17 @@ class OrgCanvas {
     this.sel = id;
     this.inner.querySelectorAll('.oc-node').forEach(n => n.classList.remove('selected'));
     if (el) el.classList.add('selected');
-    this._openSB(id);
+    if (!this.readOnly) {
+      this._openSB(id);
+    }
+    // Ouvrir la fiche employé si le nœud correspond à un employé
+    if (typeof openEmployeDetail === 'function') {
+      const d = typeof DATA !== 'undefined' ? DATA : null;
+      const emps = (d && d.employes) ? d.employes : (APP_DATA ? APP_DATA.employes : []);
+      if (emps && emps.find(e => e.id === id)) {
+        openEmployeDetail(id);
+      }
+    }
   }
   _selEl(el) {
     this.inner.querySelectorAll('.oc-node').forEach(n => n.classList.remove('selected'));
@@ -398,6 +412,12 @@ class OrgCanvas {
     document.getElementById(`${p}SBTW`).style.outline = isW  ? '2px solid #fbbf24' : 'none';
     document.getElementById(`${p}SBTD`).style.outline = !isW ? '2px solid #fbbf24' : 'none';
     this._tcChoice = nd.fg || '#ffffff';
+    // Afficher/cacher le bouton fiche selon si l'ID correspond à un employé
+    const d = typeof DATA !== 'undefined' ? DATA : null;
+    const emps = (d && d.employes) ? d.employes : (typeof APP_DATA !== 'undefined' ? APP_DATA.employes : []);
+    const isEmp = !!(emps && emps.find(e => e.id === id));
+    const ficheBtn = document.getElementById(`${p}SBFiche`);
+    if (ficheBtn) ficheBtn.style.display = isEmp ? 'block' : 'none';
   }
   _closeSB() {
     document.getElementById(`${this.p}SB`)?.style &&
