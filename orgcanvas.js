@@ -119,7 +119,7 @@ class OrgCanvas {
         <span style="flex:1"></span>
         <button class="btn oc-tbtn secondary" id="${p}BFit">⊙ Recadrer</button>
         <button class="btn oc-tbtn secondary" id="${p}BClr">🗑 Vider</button>
-        <span class="oc-hint">Maj+clic = relier deux nœuds · Dbl-clic = éditer texte · Coin bas-droite = resize</span>
+        <span class="oc-hint">🖱 Glisser fond = naviguer · Molette = zoom · Maj+clic = relier · Dbl-clic = éditer</span>
       </div>
       <div class="oc-main">
         <div class="oc-stage" id="${p}S">
@@ -198,15 +198,16 @@ class OrgCanvas {
       this._on(`${p}SBTD`, 'click', () => this._setTC('SBTD','#1e293b'));
     }
 
-    // ── Stage events ──
+    // ── Stage events — clic sur fond vide = déplacer la vue ──
     this.stage.addEventListener('mousedown', e => {
-      if (e.target === this.stage || e.target === this.inner || e.target === this.svg) {
-        if (e.altKey || e.button === 1) {
-          e.preventDefault();
-          this._pan = {sx:e.clientX, sy:e.clientY, tx:this.tx, ty:this.ty};
-        } else {
-          this._desel();
-        }
+      const onBg = e.target === this.stage || e.target === this.inner
+                || e.target === this.svg   || e.target.tagName === 'g'
+                || e.target.tagName === 'svg';
+      if (onBg) {
+        e.preventDefault();
+        this._desel();
+        this._pan = {sx:e.clientX, sy:e.clientY, tx:this.tx, ty:this.ty};
+        this.stage.style.cursor = 'grabbing';
       }
     });
     this.stage.addEventListener('wheel', e => {
@@ -484,8 +485,9 @@ class OrgCanvas {
     }
   }
   _mouseUp(e) {
-    if (this._drag) { this._save(); this._drag = null; this.stage.style.cursor = ''; }
+    if (this._drag) { this._save(); this._drag = null; }
     if (this._pan)  { this._pan = null; }
+    this.stage.style.cursor = '';
   }
 
   // ── Connexion ─────────────────────────────────────────────
