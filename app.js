@@ -127,8 +127,7 @@ function empCard(emp, level){
 }
 
 function cardClick(id){
-  if(editMode) openEmployeForm(id);
-  else openEmployeDetail(id);
+  openEmployeDetail(id);
 }
 
 function vline(h){ return `<div style="width:2px;height:${h}px;background:#94a3b8;margin:0 auto;"></div>`; }
