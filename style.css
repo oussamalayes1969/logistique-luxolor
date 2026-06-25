@@ -281,8 +281,7 @@ main{padding:16px 24px;max-width:100%;margin:0;}
   cursor:grab;
   user-select:none;
   box-sizing:border-box;
-  min-width:130px; min-height:55px;
-  resize:both;
+  min-width:120px; min-height:50px;
   overflow:hidden;
   transition:box-shadow .12s;
 }
@@ -293,17 +292,41 @@ main{padding:16px 24px;max-width:100%;margin:0;}
   box-shadow:0 6px 24px rgba(251,191,36,.4);
 }
 
-/* Poignée resize visible en bas à droite */
-.oc-node::after{
-  content:'⤡';
+/* ── Poignées de resize custom ── */
+.oc-rh{
   position:absolute;
-  bottom:3px; right:5px;
-  font-size:.75rem;
-  opacity:.5;
-  pointer-events:none;
-  line-height:1;
+  background:rgba(255,255,255,.55);
+  border-radius:3px;
+  transition:background .1s, opacity .1s;
+  opacity:0;
 }
-.oc-node:hover::after{ opacity:1; }
+.oc-node:hover .oc-rh{ opacity:1; }
+/* Coin bas-droite — resize diagonal */
+.oc-rh-se{
+  width:14px; height:14px;
+  bottom:2px; right:2px;
+  cursor:se-resize;
+  background:rgba(255,255,255,.7);
+  border-radius:0 0 8px 0;
+  display:flex; align-items:center; justify-content:center;
+}
+.oc-rh-se::after{ content:'⤡'; font-size:.7rem; color:rgba(0,0,0,.5); pointer-events:none; }
+/* Bord droit — resize horizontal */
+.oc-rh-e{
+  width:6px;
+  top:20%; bottom:20%;
+  right:0;
+  cursor:ew-resize;
+  border-radius:0 4px 4px 0;
+}
+/* Bord bas — resize vertical */
+.oc-rh-s{
+  height:6px;
+  left:20%; right:20%;
+  bottom:0;
+  cursor:ns-resize;
+  border-radius:0 0 4px 4px;
+}
 
 .oc-nlbl{
   font-weight:700;
