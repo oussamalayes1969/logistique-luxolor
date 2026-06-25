@@ -14,8 +14,11 @@ function loadData(){
   if(saved){
     try{
       const parsed = JSON.parse(saved);
-      if(!parsed.societes)     parsed.societes     = APP_DATA.societes;
-      if(!parsed.departements) parsed.departements = APP_DATA.departements;
+      if(!parsed.societes)           parsed.societes     = APP_DATA.societes;
+      if(!parsed.departements)       parsed.departements = APP_DATA.departements;
+      if(!parsed.employes  || !parsed.employes.length)   parsed.employes  = APP_DATA.employes;
+      if(!parsed.postes    || !parsed.postes.length)     parsed.postes    = APP_DATA.postes;
+      if(!parsed.fonctions || !parsed.fonctions.length)  parsed.fonctions = APP_DATA.fonctions;
       // Migration : ajouter societeId aux départements existants
       parsed.departements.forEach(d=>{ if(!d.societeId) d.societeId = "soc_luxolor"; });
       return parsed;

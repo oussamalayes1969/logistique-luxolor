@@ -588,12 +588,12 @@ class OrgCanvas {
 
   // ── Générer l'organigramme depuis les données employés ───────
   generateFromEmployees() {
-    const src = typeof DATA !== 'undefined' ? DATA : (typeof APP_DATA !== 'undefined' ? APP_DATA : null);
-    if (!src || !src.employes) { alert('Données employés non disponibles.'); return; }
+    // DATA peut venir de localStorage sans employes → on prend toujours APP_DATA comme référence
+    const d = typeof DATA !== 'undefined' ? DATA : null;
+    const emps   = (d && d.employes && d.employes.length) ? d.employes : APP_DATA.employes;
+    const postes = (d && d.postes  && d.postes.length)   ? d.postes   : APP_DATA.postes;
+    if (!emps || !emps.length) { alert('Aucun employé trouvé dans les données.'); return; }
     if (this.nodes.length && !confirm('Remplacer l\'organigramme actuel par la liste des équipes ?')) return;
-
-    const emps    = src.employes;
-    const postes  = src.postes || [];
     const posteM  = {};
     postes.forEach(p => posteM[p.id] = p);
 
