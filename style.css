@@ -43,6 +43,35 @@ header.topbar .sub{font-size:.85rem;opacity:.9;}
 }
 .edit-toggle.active{background:#fff;color:var(--primary);font-weight:600;}
 
+/* ===== Barre départements ===== */
+.dept-bar{
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  padding:8px 20px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.dept-btn{
+  border:1px solid var(--border);
+  background:#f8fafc;
+  color:var(--text);
+  padding:6px 14px;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:.85rem;
+  font-weight:500;
+  transition:all .15s;
+}
+.dept-btn:hover{ border-color:var(--primary); color:var(--primary); }
+.dept-btn.active{ font-weight:700; }
+.dept-btn.add-dept{
+  background:none;
+  border:1px dashed var(--primary);
+  color:var(--primary);
+}
+
 nav.tabs{
   display:flex;
   gap:6px;

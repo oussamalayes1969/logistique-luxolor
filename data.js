@@ -1,17 +1,30 @@
 // =========================================================
-// DONNÉES DE L'APPLICATION — Département Logistique Luxolor
-// Modifiez ce fichier (ou utilisez le Mode Édition dans l'app)
-// puis re-publiez-le sur GitHub pour mettre à jour le site.
-//
-// Le champ "childrenLayout" sur un employé contrôle l'affichage
-// de SES subordonnés directs dans l'organigramme :
-//   "vertical"   -> empilés un en dessous de l'autre
-//   "horizontal" (ou absent) -> côte à côte avec lignes classiques
+// DONNÉES DE L'APPLICATION — Luxolor (Multi-Départements)
 // =========================================================
+
+// Structure globale : société > départements > données
+const SOCIETE = {
+  nom: "Luxolor",
+  logo: "",
+  couleur: "#1d4ed8"
+};
+
+// Département actif (modifié par l'UI)
+let currentDeptId = "dept_logistique";
 
 const APP_DATA = {
 
-  postes: [
+  departements: [
+    {
+      id: "dept_logistique",
+      nom: "Logistique",
+      icone: "🏭",
+      couleur: "#1d4ed8",
+      description: "Dépôt Central & Vente en ligne"
+    }
+  ],
+
+  postes: [ // deptId identifie le département de chaque fiche
     {
       id: "poste_directeur_logistique",
       intitule: "Directeur Logistique",

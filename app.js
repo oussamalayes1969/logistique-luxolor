@@ -12,7 +12,12 @@ let oc = null;
 function loadData(){
   const saved = localStorage.getItem("logistique_data");
   if(saved){
-    try{ return JSON.parse(saved); }catch(e){ console.warn("Données locales invalides, fallback sur data.js"); }
+    try{
+      const parsed = JSON.parse(saved);
+      // Migration : ajouter departements si absent
+      if(!parsed.departements) parsed.departements = APP_DATA.departements;
+      return parsed;
+    }catch(e){ console.warn("Données locales invalides, fallback sur data.js"); }
   }
   return JSON.parse(JSON.stringify(APP_DATA));
 }
@@ -21,9 +26,16 @@ function saveData(){
   localStorage.setItem("logistique_data", JSON.stringify(DATA));
 }
 
+// ─── Getters globaux ───
 function getPoste(id){ return DATA.postes.find(p=>p.id===id); }
 function getEmploye(id){ return DATA.employes.find(e=>e.id===id); }
 function getFonction(id){ return DATA.fonctions.find(f=>f.id===id); }
+function getDept(id){ return (DATA.departements||[]).find(d=>d.id===id); }
+
+// ─── Filtres par département ───
+function deptPostes()   { return DATA.postes.filter(p=>(!p.deptId)||p.deptId===currentDeptId); }
+function deptEmployes() { return DATA.employes.filter(e=>(!e.deptId)||e.deptId===currentDeptId); }
+function deptFonctions(){ return DATA.fonctions.filter(f=>(!f.deptId)||f.deptId===currentDeptId); }
 
 // ---------- INIT ----------
 document.addEventListener("DOMContentLoaded", () => {
@@ -45,8 +57,83 @@ document.addEventListener("DOMContentLoaded", () => {
     o.addEventListener("click", e=>{ if(e.target===o) closeAllModals(); });
   });
 
+  renderDeptBar();
   renderAll();
 });
+
+// =========================================================
+// DÉPARTEMENTS
+// =========================================================
+function renderDeptBar(){
+  const depts = DATA.departements || [];
+  const bar = document.getElementById("deptBar");
+  if(!bar) return;
+  bar.innerHTML = depts.map(d=>`
+    <button class="dept-btn ${d.id===currentDeptId?'active':''}"
+      onclick="switchDept('${d.id}')"
+      style="${d.id===currentDeptId?`background:${d.couleur||'#1d4ed8'};color:#fff;border-color:${d.couleur||'#1d4ed8'}`:''}">
+      ${d.icone||'🏢'} ${d.nom}
+    </button>
+  `).join('') + (editMode ? `<button class="dept-btn add-dept" onclick="openDeptForm(null)">+ Département</button>` : '');
+}
+
+function switchDept(deptId){
+  currentDeptId = deptId;
+  const dept = getDept(deptId);
+  // Met à jour le sous-titre de l'en-tête
+  const sub = document.querySelector('header .sub');
+  if(sub && dept) sub.textContent = `Luxolor — ${dept.nom}${dept.description?' · '+dept.description:''}`;
+  renderDeptBar();
+  renderAll();
+}
+
+function openDeptForm(deptId){
+  const dept = deptId ? getDept(deptId) : null;
+  const body = document.getElementById("employeFormBody");
+  body.innerHTML = `
+    <h2>${dept?'Modifier':'Créer'} un département</h2>
+    <div class="field-row"><label>Nom *</label>
+      <input id="df_nom" value="${dept?dept.nom:''}" placeholder="Ex: Commercial, RH, Marketing..."></div>
+    <div class="field-row"><label>Icône (emoji)</label>
+      <input id="df_icone" value="${dept?dept.icone:'🏢'}" style="width:80px;font-size:1.4rem;text-align:center"></div>
+    <div class="field-row"><label>Couleur</label>
+      <input id="df_couleur" type="color" value="${dept?dept.couleur:'#1d4ed8'}" style="width:60px;height:36px;cursor:pointer"></div>
+    <div class="field-row"><label>Description</label>
+      <input id="df_desc" value="${dept?dept.description||'':''}" placeholder="Ex: Équipe ventes France"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="saveDeptForm('${deptId||''}')">Enregistrer</button>
+      <button class="btn secondary" onclick="closeAllModals()">Annuler</button>
+      ${deptId && DATA.departements.length>1 ? `<button class="btn danger" onclick="deleteDept('${deptId}')">Supprimer</button>` : ''}
+    </div>
+  `;
+  openModal("employeFormModal");
+}
+
+function saveDeptForm(deptId){
+  if(!DATA.departements) DATA.departements = [];
+  const data = {
+    nom:         document.getElementById("df_nom").value.trim(),
+    icone:       document.getElementById("df_icone").value.trim(),
+    couleur:     document.getElementById("df_couleur").value,
+    description: document.getElementById("df_desc").value.trim()
+  };
+  if(!data.nom){ alert("Le nom est obligatoire."); return; }
+  if(deptId){
+    Object.assign(getDept(deptId), data);
+  } else {
+    data.id = "dept_" + Date.now();
+    DATA.departements.push(data);
+    currentDeptId = data.id;
+  }
+  saveData(); closeAllModals(); renderDeptBar(); renderAll();
+}
+
+function deleteDept(deptId){
+  if(!confirm("Supprimer ce département ? Ses données resteront mais ne seront plus accessibles via ce département.")) return;
+  DATA.departements = DATA.departements.filter(d=>d.id!==deptId);
+  currentDeptId = DATA.departements[0]?.id || "dept_logistique";
+  saveData(); closeAllModals(); renderDeptBar(); renderAll();
+}
 
 function switchTab(tab){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
@@ -67,9 +154,8 @@ function toggleEditMode(){
   document.getElementById("addFonctionBtn").style.display = editMode ? "inline-block" : "none";
   document.getElementById("addEmployeBtn").style.display = editMode ? "inline-block" : "none";
   document.getElementById("editHint").style.display = editMode ? "inline" : "none";
-  renderOrgChart();
-  renderPostes();
-  renderFonctions();
+  renderDeptBar();
+  renderAll();
 }
 
 function exportData(){
@@ -135,17 +221,23 @@ function hline(){ return `<div style="height:2px;background:#94a3b8;position:abs
 
 function renderOrgChart(){
   const container = document.getElementById('orgTreeContainer');
-  const root = DATA.employes.find(e => !e.managerId);
+  const emps = deptEmployes();
+  const root = emps.find(e => !e.managerId);
   if(!root){
-    container.innerHTML = '<p style="padding:30px;color:#64748b">Aucun employé. Activez le mode édition pour en ajouter.</p>';
+    const dept = getDept(currentDeptId);
+    container.innerHTML = `<div style="padding:40px;color:#64748b;text-align:center">
+      <div style="font-size:2rem">${dept?dept.icone:'🏢'}</div>
+      <p>Aucun employé dans le département <strong>${dept?dept.nom:''}</strong>.</p>
+      ${editMode?`<button class="btn" onclick="openEmployeForm(null)">+ Ajouter un employé</button>`:''}
+    </div>`;
     return;
   }
 
-  const branches = DATA.employes.filter(e => e.managerId === root.id);
+  const branches = emps.filter(e => e.managerId === root.id);
 
   // Colonnes : une par responsable
   const cols = branches.map(branch => {
-    const agents = DATA.employes.filter(e => e.managerId === branch.id);
+    const agents = emps.filter(e => e.managerId === branch.id);
     const agentsHtml = agents.length
       ? vline(10) + `<div class="agents-col">${agents.map(a=>empCard(a,2)).join('')}</div>`
       : '';
@@ -584,6 +676,7 @@ function saveEmployeForm(empId){
     Object.assign(getEmploye(empId), data);
   } else {
     data.id = "emp_" + Date.now();
+    data.deptId = currentDeptId;
     DATA.employes.push(data);
   }
   saveData(); closeAllModals(); renderAll();
@@ -595,7 +688,7 @@ function saveEmployeForm(empId){
 function renderPostes(){
   const q = (document.getElementById("posteSearch").value||"").toLowerCase();
   const grid = document.getElementById("postesGrid");
-  const list = DATA.postes.filter(p=> p.intitule.toLowerCase().includes(q) || p.service.toLowerCase().includes(q));
+  const list = deptPostes().filter(p=> p.intitule.toLowerCase().includes(q) || p.service.toLowerCase().includes(q));
   grid.innerHTML = list.map(p=>`
     <div class="card" onclick="openPosteDetail('${p.id}')">
       <h3>${p.intitule}</h3>
@@ -670,6 +763,7 @@ function savePosteForm(posteId){
     Object.assign(getPoste(posteId), data);
   } else {
     data.id = "poste_" + Date.now();
+    data.deptId = currentDeptId;
     DATA.postes.push(data);
   }
   saveData(); closeAllModals(); renderAll();
@@ -681,7 +775,7 @@ function savePosteForm(posteId){
 function renderFonctions(){
   const q = (document.getElementById("fonctionSearch").value||"").toLowerCase();
   const grid = document.getElementById("fonctionsGrid");
-  const list = DATA.fonctions.filter(f=> f.nom.toLowerCase().includes(q));
+  const list = deptFonctions().filter(f=> f.nom.toLowerCase().includes(q));
   grid.innerHTML = list.map(f=>`
     <div class="card" onclick="openFonctionDetail('${f.id}')">
       <h3>${f.nom}</h3>
@@ -754,6 +848,7 @@ function saveFonctionForm(fonctionId){
     Object.assign(getFonction(fonctionId), data);
   } else {
     data.id = "fonction_" + Date.now();
+    data.deptId = currentDeptId;
     DATA.fonctions.push(data);
   }
   saveData(); closeAllModals(); renderAll();
